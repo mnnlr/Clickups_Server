@@ -5,7 +5,9 @@ userId:{type:mongoose.Schema.ObjectId, ref:"User"},
 kanId:{type:String},
 projectId:{type:mongoose.Schema.ObjectId, ref:"Project"},
 taskName:{type:String, required:true},
-description:{type:String},
+description:{
+comment:{type:String},attachment:{type:String}
+},
 timestamp:{type:Date,default:Date.now},
 dueDate:{type:Date},
 status:{type:String,enum:['ToDo','In-Progress','On-Hold','Done'], default:'Todo'},

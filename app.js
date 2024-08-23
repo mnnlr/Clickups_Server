@@ -18,7 +18,6 @@ mongoose.connect(connectionString, {
 .then(() => console.log('MongoDB connected successfully'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-// Define a simple User schema
 const UserSchema = new mongoose.Schema({
   username: { type: String, required: true },
   password: { type: String, required: true }
@@ -26,7 +25,6 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', UserSchema);
 
-// Route to create a new user
 app.post('/user', async (req, res) => {
   const { username, password } = req.body;
   try {
