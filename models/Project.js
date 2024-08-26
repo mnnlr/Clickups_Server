@@ -10,8 +10,8 @@ const ProjectSchema = new mongoose.Schema({
     },
     team: [
         {
-            role: [{ type: String }],
-            id: { type: mongoose.Schema.ObjectId, ref: "User" },
+            role: [{ type: String }], //? why we need role here
+            id: { type: mongoose.Schema.ObjectId, ref: "User" }, //? discus the User ref, here should be team ref
         },
     ],
     owner: {

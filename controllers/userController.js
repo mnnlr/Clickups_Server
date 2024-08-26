@@ -63,4 +63,7 @@ const handleUserSignUp = async (req, res) => {
     }
 }
 
-module.exports = { handleUserLogin, handleUserSignUp }
+module.exports = {
+    handleUserLogin,
+    handleUserSignUp
+}

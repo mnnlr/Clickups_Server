@@ -29,7 +29,6 @@ const validateProjectCreation = [
         .notEmpty().withMessage("Owner is required")
         .isMongoId().withMessage("Owner must be a valid MongoDB ObjectId"),
 
-
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
