@@ -3,10 +3,14 @@ const express = require('express');
 const router = express.Router();
 const projectController = require('../Controllers/projectController')
 
-router.post('/create',projectController.CreateProject);
-router.get('/',projectController.getAllProject);
-router.get('/:id',projectController.getAllPeojectById);
-router.put('/:id',projectController.updateProject);
-router.delete('/:id',projectController.deleteProject);
+
+router.route('/')
+    .get(projectController.getAllProject)
+    .post(projectController.CreateProject);
+
+router.route('/:id')
+    .get(projectController.getAllPeojectById)
+    .patch(projectController.updateProject)
+    .delete(projectController.deleteProject);
 
 module.exports = router;
