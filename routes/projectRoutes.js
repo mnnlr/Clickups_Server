@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const express = require('express');
 const router = express.Router();
-const projectController = require('../Controllers/projectController')
+const projectController = require('../controllers/projectController')
 
 
 router.route('/')
