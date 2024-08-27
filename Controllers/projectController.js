@@ -1,5 +1,4 @@
 const Project = require('../models/Project')
-const { body, validationResult } = require('express-validator')
 const User = require('../models/UserModel')
 const  validateProjectCreation  = require('../middleware/Projectvalidation');
 // Create Project Handler
