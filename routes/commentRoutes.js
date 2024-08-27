@@ -1,6 +1,12 @@
-const express = require('express');
-const commentRouter = express.Router();
+const express =require('express')
+const  Commentrouter = express.Router();
+const CommentController = require('../controllers/commentController');
 
-commentRouter.get('/',);
+router.route('/')
+.post(CommentController.createComment);
 
-module.exports = commentRouter; 
+router.route('/:id')
+.patch(CommentController.updateCommentById)
+.delete(CommentController.deleteCommentById);
+
+module.exports= Commentrouter;
