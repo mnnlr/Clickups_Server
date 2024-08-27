@@ -1,6 +1,7 @@
 const express = require('express');
 const sprintRouter = express.Router();
+const {createSprint} = require('../controllers/sprintController');
 
-sprintRouter.get('/',);
+sprintRouter.post('/create', createSprint);
 
 module.exports = sprintRouter 

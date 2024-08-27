@@ -1,6 +1,6 @@
 const Project = require('../models/Project')
 const {body,validationResult}=require('express-validator')
-const User =require('../Models/User')
+const User =require('../models/UserModel')
 // Validation Middleware
 const validateProjectCreation = [
     // Validate projectName
