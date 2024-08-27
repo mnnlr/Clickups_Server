@@ -1,14 +1,19 @@
-const express =require('express')
-const  Commentrouter = express.Router();
+const express = require('express');
+const commentRouter = express.Router();
 const CommentController = require('../controllers/commentController');
 
+<<<<<<< HEAD
 const router = express.Router();
 
 router.route('/')
+=======
+commentRouter.route('/')
+>>>>>>> 8fb122f66bce2a6c21542a8d5728302f2624e99c
 .post(CommentController.createComment);
 
-router.route('/:id')
+commentRouter.route('/:id')
 .patch(CommentController.updateCommentById)
 .delete(CommentController.deleteCommentById);
+commentRouter.get('/',);
 
-module.exports= Commentrouter;
+module.exports = commentRouter; 

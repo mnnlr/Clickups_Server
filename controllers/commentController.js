@@ -45,4 +45,18 @@ exports.deleteCommentById = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message, success: false })
     }
-}
+
+    
+}// Get Comment by ID
+exports.getCommentById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const comment = await Comments.findById(id).populate('creatorId taskId');
+        if (!comment) {
+            return res.status(404).json({ message: "Comment Not Found", success: false });
+        }
+        res.status(200).json({ comment, success: true });
+    } catch (error) {
+        res.status(500).json({ message: error.message, success: false });
+    }
+};
