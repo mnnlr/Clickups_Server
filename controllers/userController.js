@@ -43,11 +43,16 @@ const handleUserLogin = async (req, res) => {
 
 const handleUserSignUp = async (req, res) => {
     const { name, email, password } = req.body;
-    console.log(name, email, password);
+    // console.log(name, email, password);
+
     if (!name || !email || !password) {
         return res.status(400).json({ message: "Name, Email and password are required" })
     }
     try {
+        const existingUser = await UserModel.findOne({ email });
+        if (existingUser){
+            return res.status(400).json({status: "true", message: "Email is already registered"})
+        }
         const newUser = await UserModel.create({ name, email, password });
         return res.status(201).json({
             message: "User created successfully",
