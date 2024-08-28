@@ -15,7 +15,7 @@ router.route('/:id')
 
 
 router.delete('/:projectId/team/:userId', projectController.removeMemberFromTeam);
-router.patch('/:projectId/team/', projectController.addMemberToTeam);
+// router.patch('/:projectId/team/', projectController.addMemberToTeam);
 
 
 module.exports = router;
