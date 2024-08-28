@@ -2,7 +2,7 @@ const Sprint = require('../models/Sprint');
 const Project = require('../models/Project');
 const Task = require('../models/Task');
 
-// Create a new sprint
+
 const createSprint = async (req, res) => {
     const { projectId, task, startDate, endDate } = req.body;
     try {
