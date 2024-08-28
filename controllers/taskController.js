@@ -1,20 +1,24 @@
-import Task from '../models/Task.js';
+import Projects from "../models/Project.js";
+import Sprint from "../models/Sprint.js";
+import Task from "../models/Task.js";
 
 const createTask = async (req, res) => {
   const { userId, taskName, description, assignees, report } = req.params;
-  const { projectId, sprintId} = req.body;
+  const { projectId, sprintId } = req.body;
   try {
     // Generating KAN-ID:-
-    const lastTask = await Task.findOne().sort({ kanId: -1 }).exec();
+    const allTask = await Task.find().exec();
+    console.log("this is lastTask", allTask);
+    let maxKanId = 0;
 
-    let kanId;
-    if (lastTask && lastTask.kanId) {
-      const lastKanNumber = parseInt(lastTask.kanId.split("-")[1], 10);
+    allTask.forEach((task) => {
+      const kanNumber = parseInt(task.kanId.split("-")[1], 10);
+      if (kanNumber > maxKanId) {
+        maxKanId = kanNumber;
+      }
+    });
 
-      kanId = `KAN-${lastKanNumber + 1}`;
-    } else {
-      kanId = "KAN-1";
-    }
+    const kanId = `KAN-${maxKanId + 1}`;
 
     // Generating Due Data:-
     const dueDate = new Date();
@@ -31,6 +35,37 @@ const createTask = async (req, res) => {
       assignees: assignees || undefined,
       report: report || undefined,
     });
+
+    // for add the task into projectmodel
+    if (projectId) {
+      const project = await Projects.findById(projectId);
+      if (project) {
+        if (project.taskId.length === 100) {
+          return res
+            .status(400)
+            .json({
+              status: false,
+              message:
+                "This project has reached the maximum number of tasks. Please create a new project.",
+            });
+        }
+      }
+      await Projects.findByIdAndUpdate(
+        projectId,
+        { $push: { taskId: newTask._id } },
+        { new: true }
+      );
+    }
+
+    if (sprintId) {
+      await Sprint.findByIdAndUpdate(
+        sprintId,
+        { $push: { taskIds: newTask._id } },
+        { new: true }
+      );
+    }
+
+    // for add the task into sprint model
     res.status(201).json({
       status: "sucess",
       data: {
@@ -107,9 +142,4 @@ const deleteTaskById = async (req, res) => {
   }
 };
 
-export {
-  createTask,
-  showAllTasks,
-  updateTaskById,
-  deleteTaskById,
-};
+export { createTask, showAllTasks, updateTaskById, deleteTaskById };
