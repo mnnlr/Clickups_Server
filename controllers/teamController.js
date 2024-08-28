@@ -3,14 +3,14 @@ const UserModel = require('../models/UserModel');
 
 const createTeam = async (req, res) => {
     const { teamName, memberEmail } = req.body;
-
+    
     if (!teamName || !memberEmail) {
         return res.status(400).json({ message: "Team name and member's email are required" });
     }
 
     const user = await UserModel.findOne({ email: memberEmail });
     if (!user) {
-        return res.status(404).json({ message: "User is not in the database" });
+        return res.status(404).json({ message: "Please SignIn" });
     }
     const member = user._id.toString()
     try {

@@ -34,7 +34,7 @@ const taskSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: ['ToDo', 'In-Progress', 'On-Hold', 'Done'],
-        default: 'Todo'
+        default: 'ToDo'
     },
     priority: {
         type: String,
@@ -51,5 +51,7 @@ const taskSchema = new mongoose.Schema({
     }
 
 })
-const Task = mongoose.model("Task", taskSchema)
-module.exports = Task
+
+
+const Task = mongoose.model("Task", taskSchema);
+module.exports = Task;
