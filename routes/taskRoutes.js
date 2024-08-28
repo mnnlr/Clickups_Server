@@ -1,13 +1,22 @@
-const express = require('express');
-const taskRouter = express.Router();
-const { showAllTasks, createTask, deleteTaskById, updateTaskById } = require('../controllers/taskController');
-const Authenticated = require('../middleware/Authenticated');
+import express from "express";
+import {
+  showAllTasks,
+  createTask,
+  deleteTaskById,
+  updateTaskById,
+} from "../controllers/taskController.js";
+import Authenticated from "../middleware/Authenticated.js";
 
-taskRouter.route('/')
-    .get(Authenticated ,showAllTasks)
-    .post(Authenticated, createTask);
+const taskRoutes = express.Router();
 
-taskRouter.route('/:id')
-    .patch(Authenticated, updateTaskById)
-    .delete(Authenticated, deleteTaskById)
-module.exports = taskRouter;
+taskRoutes
+  .route("/")
+  .get(Authenticated, showAllTasks)
+  .post(Authenticated, createTask);
+
+taskRoutes
+  .route("/:id")
+  .patch(Authenticated, updateTaskById)
+  .delete(Authenticated, deleteTaskById);
+
+export default taskRoutes;

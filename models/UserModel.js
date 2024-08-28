@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+import mongoose from 'mongoose'
+import bcrypt from 'bcrypt';
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -41,4 +41,4 @@ UserSchema.pre('save', async function (next) {
 // // Check if the model is already compiled before defining it
 const UserModel = mongoose.models.User || mongoose.model('User', UserSchema);
 
-module.exports = UserModel;
+export default UserModel;

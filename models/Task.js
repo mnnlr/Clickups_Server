@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose';
 
 const taskSchema = new mongoose.Schema({
     userId: {
@@ -11,6 +11,10 @@ const taskSchema = new mongoose.Schema({
     projectId: {
         type: mongoose.Schema.ObjectId,
         ref: "Project"
+    },
+    SprintId: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Sprint"
     },
     taskName: {
         type: String,
@@ -53,4 +57,4 @@ const taskSchema = new mongoose.Schema({
 })
 
 const Task = mongoose.model("Task", taskSchema);
-module.exports = Task;
+export default Task;

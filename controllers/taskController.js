@@ -1,7 +1,8 @@
-const Task = require("../models/Task.js");
+import Task from '../models/Task.js';
 
 const createTask = async (req, res) => {
-  const { userId, taskName, projectId, description, assignees, report } = req.body;
+  const { userId, taskName, description, assignees, report } = req.params;
+  const { projectId, sprintId} = req.body;
   try {
     // Generating KAN-ID:-
     const lastTask = await Task.findOne().sort({ kanId: -1 }).exec();
@@ -23,6 +24,7 @@ const createTask = async (req, res) => {
       userId,
       kanId,
       projectId: projectId || undefined,
+      sprintId: sprintId || undefined,
       taskName,
       description,
       dueDate,
@@ -105,7 +107,7 @@ const deleteTaskById = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   createTask,
   showAllTasks,
   updateTaskById,

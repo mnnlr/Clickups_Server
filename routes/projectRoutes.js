@@ -1,21 +1,25 @@
-const mongoose = require('mongoose')
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const projectController = require('../controllers/projectController')
-
+import validateProjectCreation from "../middleware/Projectvalidation.js";
+import {CreateProject,
+    getAllProject,
+    getAllPeojectById,
+    updateProject,
+    deleteProject,
+} from "../controllers/projectController.js";
 
 router.route('/')
-    .get(projectController.getAllProject)
-    .post(projectController.CreateProject);
+    .get(getAllProject)
+    .post(validateProjectCreation, CreateProject);
 
 router.route('/:id')
-    .get(projectController.getAllPeojectById)
-    .patch(projectController.updateProject)
-    .delete(projectController.deleteProject);
+    .get(getAllPeojectById)
+    .patch(validateProjectCreation, updateProject)
+    .delete(deleteProject);
 
 
-router.delete('/:projectId/team/:userId', projectController.removeMemberFromTeam);
+// router.delete('/:projectId/team/:userId', projectController.removeMemberFromTeam);
 // router.patch('/:projectId/team/', projectController.addMemberToTeam);
 
 
-module.exports = router;
+export default router;

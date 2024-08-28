@@ -1,8 +1,7 @@
-const Comments = require('../models/comment')
-
+import Comments from '../models/comment.js';
 
 //create comment
-exports.createComment = async (req, res) => {
+const createComment = async (req, res) => {
     try {
         const { taskId, creatorId, comment } = req.body;
         const newComment = new Comments({
@@ -19,7 +18,7 @@ exports.createComment = async (req, res) => {
 }
 
 // update comment by id
-exports.updateCommentById = async (req, res) => {
+const updateCommentById = async (req, res) => {
     try {
         const { id } = req.params;
         const { comment } = req.body;
@@ -34,7 +33,7 @@ exports.updateCommentById = async (req, res) => {
 }
 
 //delete Comment BY id
-exports.deleteCommentById = async (req, res) => {
+const deleteCommentById = async (req, res) => {
     try {
         const { id } = req.params;
         const deleteComment = await Comments.findByIdAndDelete(id);
@@ -48,7 +47,7 @@ exports.deleteCommentById = async (req, res) => {
 
     
 }// Get Comment by ID
-exports.getCommentById = async (req, res) => {
+const getCommentById = async (req, res) => {
     try {
         const { id } = req.params;
         const comment = await Comments.findById(id).populate('creatorId taskId');
@@ -60,3 +59,7 @@ exports.getCommentById = async (req, res) => {
         res.status(500).json({ message: error.message, success: false });
     }
 };
+
+export {
+    createComment, updateCommentById, deleteCommentById, getCommentById
+}

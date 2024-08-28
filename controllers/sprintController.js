@@ -1,6 +1,6 @@
-const Sprint = require('../models/Sprint');
-const Project = require('../models/Project');
-const Task = require('../models/Task');
+import Sprint from '../models/Sprint.js';
+import Project from '../models/Project.js';
+import Task from '../models/Task.js';
 
 
 const createSprint = async (req, res) => {
@@ -54,9 +54,8 @@ const deleteSprint = async (req, res) => {
     }
 };
 
-module.exports = {
+export {
     createSprint,
     getSprints,
-
     deleteSprint
 };

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose';
 
 const TeamSchema = new mongoose.Schema({
     teamName: { //? added team name
@@ -17,4 +17,4 @@ const TeamSchema = new mongoose.Schema({
 
 const Team = mongoose.model("Team", TeamSchema);
 
-module.exports = Team;
+export default Team;

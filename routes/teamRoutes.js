@@ -1,8 +1,9 @@
-const express = require('express');
-const TeamRouter = express.Router();
-const { createTeam } = require('../controllers/teamController');
-const Authenticated = require('../middleware/Authenticated');
+import express from 'express';
+const TeamRoutes = express.Router();
 
-TeamRouter.post('/', Authenticated, createTeam);
+import { createTeam } from '../controllers/teamController.js';
+import Authenticated from '../middleware/Authenticated.js';
 
-module.exports = TeamRouter; 
+TeamRoutes.post('/', Authenticated, createTeam);
+
+export default TeamRoutes; 

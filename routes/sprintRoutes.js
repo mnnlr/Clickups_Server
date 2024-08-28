@@ -1,7 +1,11 @@
-const express = require('express');
+import express from 'express';
 const sprintRouter = express.Router();
-const {getSprints, createSprint, deleteSprint} = require('../controllers/sprintController') 
+
+import {getSprints, createSprint, deleteSprint} from '../controllers/sprintController.js';
+
 sprintRouter.get('/',getSprints);
 sprintRouter.post('/', createSprint);
 sprintRouter.delete('/:sprintId', deleteSprint);
-module.exports = sprintRouter 
+
+
+export default sprintRouter;

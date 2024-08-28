@@ -1,5 +1,5 @@
-const Team = require('../models/Team');
-const UserModel = require('../models/UserModel');
+import Team from'../models/Team.js';
+import UserModel from'../models/UserModel.js';
 
 const createTeam = async (req, res) => {
     const { teamName, memberEmail } = req.body;
@@ -22,6 +22,6 @@ const createTeam = async (req, res) => {
     }
 }
 
-module.exports = {
+export {
     createTeam,
 }

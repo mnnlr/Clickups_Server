@@ -1,5 +1,4 @@
-const { body, validationResult } = require('express-validator');
-
+import { body, validationResult } from 'express-validator';
 // Validation Middleware
 const validateProjectCreation = [
     // Validate projectName
@@ -37,4 +36,4 @@ const validateProjectCreation = [
     }
 ];
 
-module.exports = validateProjectCreation;
+export default validateProjectCreation;
