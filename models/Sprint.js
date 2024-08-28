@@ -5,10 +5,10 @@ const sprintSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: "Project"
     },
-    task: {
+    taskIds: [{
         type: mongoose.Schema.ObjectId,
         ref: "Task"
-    },
+    }],
     startDate: {
         type: Date,
         default: Date.now
