@@ -1,9 +1,13 @@
 const express = require('express');
 const taskRouter = express.Router();
-const { showAllTasks, createTask } = require('../controllers/taskController')
+const { showAllTasks, createTask, deleteTaskById, updateTaskById } = require('../controllers/taskController');
+const Authenticated = require('../middleware/Authenticated');
 
 taskRouter.route('/')
-    .get(showAllTasks)
-    .post(createTask);
+    .get(Authenticated ,showAllTasks)
+    .post(Authenticated, createTask);
 
-module.exports = taskRouter
+taskRouter.route('/:id')
+    .patch(Authenticated, updateTaskById)
+    .delete(Authenticated, deleteTaskById)
+module.exports = taskRouter;

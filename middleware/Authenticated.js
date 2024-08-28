@@ -12,7 +12,7 @@ const Authenticated = (req, res, next) => {
     try {
         const decoded = jwt.verify(token, process.env.KEY);
         req.user = decoded.user;
-        console.log("User is authenticated.");
+        // console.log("User is authenticated.");
         next();
     } catch (err) {
         console.error(err);

@@ -22,17 +22,23 @@ const UserSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
+// Hash the password before saving the user
 UserSchema.pre('save', async function (next) {
   try {
+    if (!this.isModified('password')) {
+      return next();
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(this.password, salt);
     this.password = hashedPassword;
     next();
   } catch (err) {
-    next(`Error on hasing password: ${err}`);
+    next(`Error hashing password: ${err}`);
   }
-})
+});
 
-const UserModel = mongoose.model('User', UserSchema);
+// // Check if the model is already compiled before defining it
+const UserModel = mongoose.models.User || mongoose.model('User', UserSchema);
 
 module.exports = UserModel;
