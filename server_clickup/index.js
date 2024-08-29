@@ -3,9 +3,10 @@ import cors from 'cors';
 import connectDB from './database/connectDB.js'
 import dotenv from 'dotenv';
 
-const app = express();
 dotenv.config({ path: './config/.env' });
 
+const app = express();
+console.log('this is process index', process.env.KEY);
 
 app.use(cors({
     origin: 'http://localhost:5173',

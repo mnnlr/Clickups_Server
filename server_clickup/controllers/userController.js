@@ -3,27 +3,28 @@ import bcrypt from "bcrypt";
 import UserModel from "../models/UserModel.js";
 
 const handleUserLogin = async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email and password are required" });
-  }
-
-  const user = await UserModel.findOne({ email });
-  const isMatch = await bcrypt.compare(password, user.password);
-
-  try {
-    if (!user || !isMatch) {
-      return res.status(401).json({ message: "Invalid email or password" });
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
     }
-    const payload = {
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-    };
-    jwt.sign(payload, process.env.KEY, { expiresIn: "7d" }, (err, token) => {
-      if (err) {
+    
+    const user = await UserModel.findOne({ email });
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log('this is process', process.env.KEY);
+    
+    try {
+        if (!user || !isMatch) {
+            return res.status(401).json({ message: "Invalid email or password" });
+        }
+        const payload = {
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+            },
+        };
+        jwt.sign(payload, process.env.KEY, { expiresIn: "7d" }, (err, token) => {
+            if (err) {
         console.log(err);
         res
           .status(500)
