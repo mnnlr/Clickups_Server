@@ -10,7 +10,7 @@ const ProjectSchema = new mongoose.Schema({
     },
     teams: [
         {
-            id: { type: mongoose.Schema.ObjectId, ref: "Team" }, //? discus the User ref, here should be team ref
+            id: { type: mongoose.Schema.ObjectId, ref: "Team" },
         },
     ],
     owner: {
