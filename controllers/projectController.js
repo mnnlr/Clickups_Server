@@ -16,9 +16,7 @@ const CreateProject = async (req, res) => {
 
     // Save the project to the database
     const saveProject = await newProject.save();
-    res
-      .status(201)
-      .json({ message: "Project created successfully", succcess: true });
+    res.status(201).json({ message: "Project created successfully", succcess: true });
   } catch (error) {
     // Handle server errors
     res.status(500).json({ message: error.message, success: false });
@@ -54,7 +52,7 @@ const getAllPeojectById = async (req, res) => {
 };
 
 //update project
-const updateProject = 
+const updateProject =
   async (req, res) => {
     try {
       const projectId = req.params.id;

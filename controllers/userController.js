@@ -1,6 +1,6 @@
-import jwt from'jsonwebtoken';
-import bcrypt from'bcrypt';
-import UserModel from'../models/UserModel.js';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import UserModel from '../models/UserModel.js';
 
 const handleUserLogin = async (req, res) => {
 
@@ -23,7 +23,7 @@ const handleUserLogin = async (req, res) => {
                     email: user.email,
                 }
             }
-            jwt.sign(payload, process.env.KEY, { expiresIn: '7d' }, (err, token) => {
+            jwt.sign(payload, process.env.ACCESS_TOKEN, { expiresIn: '7d' }, (err, token) => {
                 if (err) {
                     console.log(err)
                     return res.status(500).json({ message: "Something went wrong when logging in" })
@@ -50,8 +50,8 @@ const handleUserSignUp = async (req, res) => {
     }
     try {
         const existingUser = await UserModel.findOne({ email });
-        if (existingUser){
-            return res.status(400).json({status: "true", message: "Email is already registered"})
+        if (existingUser) {
+            return res.status(400).json({ status: "true", message: "Email is already registered" })
         }
         const newUser = await UserModel.create({ name, email, password });
         return res.status(201).json({
