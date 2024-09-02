@@ -3,13 +3,15 @@ import Project from "../models/Project.js";
 // Create Project Handler
 const CreateProject = async (req, res) => {
   try {
-    const { projectName, description, team, owner, status } = req.body;
+    const { projectName, description, teams, owner, status } = req.body;
+
+    console.log(teams)
 
     // Create a new project
     const newProject = new Project({
       projectName,
       description,
-      team,
+      teams,
       owner,
       status,
     });
@@ -26,10 +28,13 @@ const CreateProject = async (req, res) => {
 //get all project data
 const getAllProject = async (req, res) => {
   try {
-    const projects = await Project.find().populate(
-      "owner team.id taskId sprintId"
-    );
-    res.json(200).json({ Data: projects, success: true });
+    const projects = await Project.find().populate([
+      "owner",
+      "teams.member",
+      "taskId",
+      "sprintId"
+    ]);
+    res.status(200).json({ Data: projects, success: true });
   } catch (error) {
     res.status(500).json({ message: error.message, success: false });
   }
@@ -52,26 +57,26 @@ const getAllPeojectById = async (req, res) => {
 };
 
 //update project
-const updateProject =
-  async (req, res) => {
-    try {
-      const projectId = req.params.id;
-      const updateData = req.body;
-      const updateproject = await Project.findByIdAndUpdate(
-        projectId,
-        updateData,
-        { new: true }
-      );
-      if (!updateproject) {
-        return res.status(404).json({ message: "Project Not Found" });
-      }
-      res
-        .status(200)
-        .json({ message: "Project Update Successfully", success: true });
-    } catch (error) {
-      res.status(500).json({ message: error.message, succcess: false });
+const updateProject = async (req, res) => {
+  try {
+    const projectId = req.params.id;
+    const updateData = req.body;
+    console.log(updateData)
+    const updateproject = await Project.findByIdAndUpdate(
+      projectId,
+      updateData,
+      { new: true }
+    );
+    if (!updateproject) {
+      return res.status(404).json({ message: "Project Not Found" });
     }
+    res
+      .status(200)
+      .json({ message: "Project Update Successfully", success: true, updateproject });
+  } catch (error) {
+    res.status(500).json({ message: error.message, succcess: false });
   }
+}
 
 
 //delete a project

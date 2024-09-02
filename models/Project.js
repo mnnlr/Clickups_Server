@@ -10,7 +10,11 @@ const ProjectSchema = new mongoose.Schema({
     },
     teams: [
         {
-            id: { type: mongoose.Schema.ObjectId, ref: "Team" },
+            member: {
+                type: mongoose.Schema.ObjectId,
+                ref: "User"
+            },
+            _id: false
         },
     ],
     owner: {

@@ -1,9 +1,12 @@
 import express from 'express';
+import Authenticated from '../middleware/Authenticated.js';
+import { createTeam, getAllTeamsMembers, deleteTeamMember, } from '../controllers/teamController.js';
+
 const TeamRoutes = express.Router();
 
-import { createTeam } from '../controllers/teamController.js';
-import Authenticated from '../middleware/Authenticated.js';
-
-TeamRoutes.post('/', Authenticated, createTeam);
+TeamRoutes.route('/')
+    .post(Authenticated, createTeam)
+    .get(Authenticated, getAllTeamsMembers)
+    .delete(Authenticated, deleteTeamMember);
 
 export default TeamRoutes; 
