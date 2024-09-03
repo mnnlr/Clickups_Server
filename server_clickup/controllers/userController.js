@@ -3,42 +3,45 @@ import bcrypt from "bcrypt";
 import UserModel from "../models/UserModel.js";
 
 const handleUserLogin = async (req, res) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
-        return res.status(400).json({ message: "Email and password are required" });
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password are required" });
+  }
+
+  const user = await UserModel.findOne({ email });
+  const isMatch = await bcrypt.compare(password, user.password);
+  
+  try {
+    if (!user || !isMatch) {
+      return res.status(401).json({ message: "Invalid email or password" });
     }
-    
-    const user = await UserModel.findOne({ email });
-    const isMatch = await bcrypt.compare(password, user.password);
-    console.log('this is process', process.env.KEY);
-    
-    try {
-        if (!user || !isMatch) {
-            return res.status(401).json({ message: "Invalid email or password" });
-        }
-        const payload = {
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-            },
-        };
-        jwt.sign(payload, process.env.KEY, { expiresIn: "7d" }, (err, token) => {
-            if (err) {
+    const payload = {
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    };
+    jwt.sign(payload, process.env.KEY, { expiresIn: "7d" }, (err, token) => {
+      if (err) {
         console.log(err);
-        res
-          .status(500)
-          .json({ message: "Spmthing wrong in jwt" });
+        res.status(500).json({ message: "Something wrong in jwt" });
       } else {
+        res.cookie("token", token, {
+          httpOnly: true, 
+          secure: process.env.NODE_ENV === "production", 
+          sameSite: "strict",
+          maxAge: 7 * 24 * 60 * 60 * 1000 
+        }); 
         return res.status(200).json({
           message: "User logged in successfully",
-          token: token,
+          data: {name: user.name, email: user.email, token: token}
         });
       }
     });
   } catch (err) {
     console.log("this is err", err);
-    res.status(500).json({status: 'false', message: err, });
+    res.status(500).json({ status: "false", message: err });
   }
 };
 
