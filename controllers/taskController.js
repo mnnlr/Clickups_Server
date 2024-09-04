@@ -3,8 +3,8 @@ import Sprint from "../models/Sprint.js";
 import Task from "../models/Task.js";
 
 const createTask = async (req, res) => {
-  const { userId, taskName, description, assignees, report } = req.params;
-  const { projectId, sprintId } = req.body;
+  const { userId, taskName, description, assignees, report } = req.body;
+  const { projectId, sprintId } = req.params;
   try {
     // Generating KAN-ID:-
     const allTask = await Task.find().exec();
