@@ -61,7 +61,7 @@ const updateProject = async (req, res) => {
   try {
     const projectId = req.params.id;
     const updateData = req.body;
-    console.log(updateData)
+    console.log("updated project: " + req.body)
     const updateproject = await Project.findByIdAndUpdate(
       projectId,
       updateData,

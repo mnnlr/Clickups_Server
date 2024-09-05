@@ -20,7 +20,7 @@ const validateProjectCreation = [
         .trim()
         .notEmpty().withMessage('Project status is required')
         .isString().withMessage('Project status must be a string')
-        .isIn(['active', 'inactive']).withMessage('Project status must be either "active" or "inactive"'),
+        .isIn(['active', 'inactive', 'completed']).withMessage('Project status must be either "active" or "inactive" or "completed"'),
 
     // Validate owner
     body("owner")
