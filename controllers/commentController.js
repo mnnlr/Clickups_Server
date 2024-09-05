@@ -1,65 +1,82 @@
 import Comments from '../models/comment.js';
 
-//create comment
+// Create comment
 const createComment = async (req, res) => {
-    try {
-        const { taskId, creatorId, comment } = req.body;
-        const newComment = new Comments({
-            taskId,
-            creatorId,
-            comment
-        })
-        const saveComment = await newComment.save();
-        res.status(200).json({ message: "Comment Created Successfully", success: true })
-    } catch (error) {
-        res.status(500).json({ message: error.message, success: false })
-    }
-
-}
-
-// update comment by id
-const updateCommentById = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { comment } = req.body;
-        const updateComment = await Comments.findByIdAndUpdate(id, { comment }, { new: true })
-        if (!updateComment) {
-            return res.status(404).json({ message: "Comment Not Found", success: false })
-        }
-        res.status(200).json({ message: "Comment Updated Successfully", success: true })
-    } catch (error) {
-        res.status(500).json({ message: error.message, duccess: true })
-    }
-}
-
-//delete Comment BY id
-const deleteCommentById = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const deleteComment = await Comments.findByIdAndDelete(id);
-        if (!deleteComment) {
-            return res.status(404).json({ message: "Comment Not Found", success: false })
-        }
-        res.status(200).json({ message: "Delete Comment Successfully", success: true })
-    } catch (error) {
-        res.status(500).json({ message: error.message, success: false })
-    }
-
+  try {
+    const { taskId,creatorId, comment } = req.body;
     
-}// Get Comment by ID
-const getCommentById = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const comment = await Comments.findById(id).populate('creatorId taskId');
-        if (!comment) {
-            return res.status(404).json({ message: "Comment Not Found", success: false });
-        }
-        res.status(200).json({ comment, success: true });
-    } catch (error) {
-        res.status(500).json({ message: error.message, success: false });
-    }
+    const newComment = new Comments({
+      taskId,
+      creatorId,
+      comment
+    });
+    
+    const savedComment = await newComment.save();
+    res.status(201).json({ message: "Comment Created Successfully", success: true, data: savedComment });
+  } catch (error) {
+    res.status(500).json({ message: error.message, success: false });
+  }
 };
 
-export {
-    createComment, updateCommentById, deleteCommentById, getCommentById
-}
+// Update comment by ID
+const updateCommentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { comment } = req.body;
+
+    // Validate input
+    if (!comment) {
+      return res.status(400).json({ message: "Comment text is required", success: false });
+    }
+
+    const updatedComment = await Comments.findByIdAndUpdate(id, { comment }, { new: true });
+
+    if (!updatedComment) {
+      return res.status(404).json({ message: "Comment Not Found", success: false });
+    }
+
+    res.status(200).json({ message: "Comment Updated Successfully", success: true, data: updatedComment });
+  } catch (error) {
+    res.status(500).json({ message: error.message, success: false });
+  }
+};
+
+// Delete comment by ID
+const deleteCommentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedComment = await Comments.findByIdAndDelete(id);
+
+    if (!deletedComment) {
+      return res.status(404).json({ message: "Comment Not Found", success: false });
+    }
+
+    res.status(200).json({ message: "Comment Deleted Successfully", success: true });
+  } catch (error) {
+    res.status(500).json({ message: error.message, success: false });
+  }
+};
+
+// Get comments by task ID
+const getCommentsByTaskId = async (req, res) => {
+  try {
+    console.log('req.params:', req.params); 
+    const { taskId } = req.params;
+    //console.log('Fetching comments for taskId:', taskId); 
+    const comments = await Comments.find({ taskId });
+   // console.log('Fetched comments:', comments); 
+
+    res.status(200).json({
+      success: true,
+      data: comments,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export { createComment, updateCommentById, deleteCommentById, getCommentsByTaskId };
