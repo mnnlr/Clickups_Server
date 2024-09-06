@@ -30,7 +30,7 @@ const validateProjectCreation = [
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array(), success: false });
+            return res.status(400).json({ errors: errors.array(), message: "error from middleware", success: false });
         }
         next();
     }

@@ -1,10 +1,9 @@
-import express from'express';
-const uesrRouter = express.Router();
-import { handleUserLogin } from'../controllers/userController.js';
-import { handleUserSignUp } from'../controllers/userController.js';
+import express from 'express';
+const userRouter = express.Router();
+import { handleUserLogin, handleUserSignUp, getAllUsers } from '../controllers/userController.js'
 
+userRouter.post('/login', handleUserLogin);
+userRouter.post('/signup', handleUserSignUp);
+userRouter.get('/get-all-users', getAllUsers);
 
-uesrRouter.post('/login', handleUserLogin);
-uesrRouter.post('/signup', handleUserSignUp)
-
-export default uesrRouter;
+export default userRouter;

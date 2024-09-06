@@ -68,8 +68,14 @@ const handleUserSignUp = async (req, res) => {
     }
 }
 
+const getAllUsers = async (req, res) => {
+    const users = await UserModel.find();
+    return res.status(200).json({ users });
+}
+
 
 export {
     handleUserLogin,
-    handleUserSignUp
+    handleUserSignUp,
+    getAllUsers
 }

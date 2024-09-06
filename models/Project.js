@@ -8,15 +8,10 @@ const ProjectSchema = new mongoose.Schema({
     description: {
         type: String
     },
-    teams: [
-        {
-            member: {
-                type: mongoose.Schema.ObjectId,
-                ref: "User"
-            },
-            _id: false
-        },
-    ],
+    teams: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Team"
+    },
     owner: {
         type: mongoose.Schema.ObjectId,
         ref: "User",
@@ -44,7 +39,7 @@ const ProjectSchema = new mongoose.Schema({
         enum: ["completed", "active", "inactive"],
         default: "inactive"
     },
-    duedate: { type: Date },
+    dueDate: { type: Date },
 });
 
 const Projects = mongoose.model("Project", ProjectSchema);

@@ -21,14 +21,14 @@ import projectRoutes from './routes/projectRoutes.js';
 import sprintRoutes from './routes/sprintRoutes.js';
 import teamRoutes from './routes/teamRoutes.js';
 import commentRoutes from './routes/commentRoutes.js';
-import userRoutes from './routes/userRoutes.js';
+import userRouter from './routes/userRoutes.js';
 
 app.use("/api/tasks", taskRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/sprints", sprintRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/comments", commentRoutes);
-app.use("/api/users", userRoutes);
+app.use("/api/users", userRouter);
 
 
 

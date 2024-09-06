@@ -3,15 +3,16 @@ import Project from "../models/Project.js";
 // Create Project Handler
 const CreateProject = async (req, res) => {
   try {
-    const { projectName, description, teams, owner, status } = req.body;
+    const { projectName, description, teams, dueDate, owner, status } = req.body;
 
-    console.log(teams)
+    console.log(req.body)
 
     // Create a new project
     const newProject = new Project({
       projectName,
       description,
       teams,
+      dueDate,
       owner,
       status,
     });
@@ -30,7 +31,12 @@ const getAllProject = async (req, res) => {
   try {
     const projects = await Project.find().populate([
       "owner",
-      "teams.member",
+      {
+        path: "teams",
+        populate: {
+          path: "members",
+        }
+      },
       "taskId",
       "sprintId"
     ]);
