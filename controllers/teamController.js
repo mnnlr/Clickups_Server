@@ -2,42 +2,26 @@ import Team from '../models/Team.js';
 import UserModel from '../models/UserModel.js';
 
 const createTeam = async (req, res) => {
-    const { teamName, memberIdentifiers } = req.body;
-
-    if (!teamName || !memberIdentifiers || !Array.isArray(memberIdentifiers)) {
-        return res.status(400).json({ message: "Team name and member identifiers (IDs or emails) are required", success: false });
+    const { teamName, memberEmail } = req.body;
+    // console.log(teamName, memberEmail)
+    if (!teamName || !memberEmail) {
+        return res.status(400).json({ message: "Team name and member email are required", success: false });
     }
 
     try {
-        const members = [];
-        for (const identifier of memberIdentifiers) {
-            let user;
-            if (identifier.includes('@')) {
-                // Identifier is an email
-                user = await UserModel.findOne({ email: identifier });
-                if (!user) {
-                    return res.status(404).json({ message: `Email ${identifier} is not in database. Please enter a valid employee email.`, success: false });
-                }
-            } else {
-                // Identifier is an ID
-                user = await UserModel.findById(identifier);
-                if (!user) {
-                    return res.status(404).json({ message: `User with ID ${identifier} is not in database. Please enter a valid employee ID.`, success: false });
-                }
-            }
-            members.push(user._id.toString());
+        const user = await UserModel.findOne({ email: memberEmail });
+        if (!user) {
+            return res.status(404).json({ message: `Email ${memberEmail} is not in database. Please enter a valid employee email.`, success: false });
         }
 
-        for (const member of members) {
-            const teamExists = await Team.findOne({ teamName, members: { $in: [member] } });
-            if (teamExists) {
-                return res.status(400).json({ message: `Member with identifier ${memberIdentifiers[members.indexOf(member)]} already exists in the team`, success: false });
-            }
+        const existingTeam = await Team.findOne({ teamName, members: user._id });
+        if (existingTeam) {
+            return res.status(400).json({ message: "Member already exists in the team", success: false });
         }
 
-        const teamId = await Team.create({ teamName, members });
+        const team = await Team.create({ teamName, members: [user._id] });
 
-        return res.status(201).json({ message: "Added team members successfully", success: true, teamId: teamId._id });
+        return res.status(201).json({ message: "Team created successfully", success: true, teamId: team._id });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "Something went wrong when creating team", success: false });
@@ -55,11 +39,31 @@ const getAllTeamsMembers = async (req, res) => {
 }
 
 const updateTeam = async (req, res) => {
-    const { teamName, members } = req.body;
-    console.log(teamName, members)
+    const { teamName, memberEmail } = req.body;
+    // console.log(teamName, memberEmail);
+    if (!teamName || !memberEmail) {
+        return res.status(400).json({ message: "Team name and member email are required", success: false });
+    }
+
     try {
-        const team = await Team.findOneAndUpdate({ teamName }, { members }, { new: true });
-        return res.status(200).json({ message: "Team updated successfully", success: true, teamId: team._id });
+        const user = await UserModel.findOne({ email: memberEmail });
+        if (!user) {
+            return res.status(404).json({ message: `Email ${memberEmail} is not in database. Please enter a valid employee email.`, success: false });
+        }
+
+        const existingTeam = await Team.findOne({ teamName });
+        if (!existingTeam) {
+            return res.status(404).json({ message: "Team not found", success: false });
+        }
+
+        if (existingTeam.members.includes(user._id)) {
+            return res.status(400).json({ message: `Member with email ${memberEmail} already exists in the team`, success: false });
+        }
+
+        existingTeam.members.push(user._id);
+        await existingTeam.save();
+
+        return res.status(200).json({ message: "Team member added successfully", success: true, teamId: existingTeam._id });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "Something went wrong when updating team", success: false });
@@ -67,10 +71,31 @@ const updateTeam = async (req, res) => {
 }
 
 const deleteTeam = async (req, res) => {
-    const { teamName } = req.body;
+    const { teamId } = req.body;
 
-    if (!teamName) {
-        return res.status(400).json({ message: "Team name is required", success: false });
+    if (!teamId) {
+        return res.status(400).json({ message: "Team ID is required", success: false });
+    }
+
+    try {
+        const team = await Team.findById(teamId);
+        if (!team) {
+            return res.status(404).json({ message: "Team not found", success: false });
+        }
+
+        await Team.findByIdAndDelete(teamId);
+        return res.status(200).json({ message: "Deleted team successfully", success: true });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Something went wrong when deleting the team", success: false });
+    }
+}
+
+const deleteTeamMember = async (req, res) => {
+    const { teamName, email } = req.body;
+
+    if (!teamName || !email) {
+        return res.status(400).json({ message: "Team name and member email required", success: false });
     }
 
     try {
@@ -79,11 +104,16 @@ const deleteTeam = async (req, res) => {
             return res.status(404).json({ message: "Team not found", success: false });
         }
 
-        await Team.deleteOne({ teamName });
-        return res.status(200).json({ message: "Deleted team successfully", success: true });
+        const member = await UserModel.findOne({ email });
+        if (!member) {
+            return res.status(404).json({ message: "Member not found", success: false });
+        }
+
+        await Team.updateOne({ teamName }, { $pull: { members: member._id } });
+        return res.status(200).json({ message: "Deleted team member successfully", success: true });
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ message: "Something went wrong when deleting the team", success: false });
+        return res.status(500).json({ message: "Something went wrong when deleting the team member", success: false });
     }
 }
 
@@ -93,4 +123,5 @@ export {
     getAllTeamsMembers,
     deleteTeam,
     updateTeam,
+    deleteTeamMember
 }

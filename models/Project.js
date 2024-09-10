@@ -8,10 +8,10 @@ const ProjectSchema = new mongoose.Schema({
     description: {
         type: String
     },
-    teams: {
+    teams: [{
         type: mongoose.Schema.ObjectId,
         ref: "Team"
-    },
+    }],
     owner: {
         type: mongoose.Schema.ObjectId,
         ref: "User",

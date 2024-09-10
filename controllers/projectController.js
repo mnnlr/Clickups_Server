@@ -3,7 +3,7 @@ import Project from "../models/Project.js";
 // Create Project Handler
 const CreateProject = async (req, res) => {
   try {
-    const { projectName, description, teams, dueDate, owner, status } = req.body;
+    const { projectName, description, dueDate, owner, status } = req.body;
 
     console.log(req.body)
 
@@ -11,7 +11,6 @@ const CreateProject = async (req, res) => {
     const newProject = new Project({
       projectName,
       description,
-      teams,
       dueDate,
       owner,
       status,
