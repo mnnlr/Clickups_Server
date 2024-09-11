@@ -64,7 +64,7 @@ const getCommentsByTaskId = async (req, res) => {
     console.log('req.params:', req.params); 
     const { taskId } = req.params;
     //console.log('Fetching comments for taskId:', taskId); 
-    const comments = await Comments.find({ taskId });
+   const comments = await Comments.find({ taskId }).populate('creatorId', 'name'); 
    // console.log('Fetched comments:', comments); 
 
     res.status(200).json({
