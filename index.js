@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import connectDB from './database/connectDB.js'
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+
 
 const app = express();
 dotenv.config({ path: './config/.env' });
@@ -12,6 +14,7 @@ app.use(cors({
     credentials: true,
 }));
 
+app.use(cookieParser());
 app.use(express.json());
 
 // -------------------import Routes-------------------------------
@@ -22,6 +25,8 @@ import sprintRoutes from './routes/sprintRoutes.js';
 import teamRoutes from './routes/teamRoutes.js';
 import commentRoutes from './routes/commentRoutes.js';
 import userRouter from './routes/userRoutes.js';
+import AthenticateRoute from './routes/AthenticateRoute.js';
+
 
 app.use("/api/tasks", taskRoutes);
 app.use("/api/projects", projectRoutes);
@@ -29,6 +34,7 @@ app.use("/api/sprints", sprintRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/users", userRouter);
+app.use('/api/authenticate', AthenticateRoute)
 
 
 
