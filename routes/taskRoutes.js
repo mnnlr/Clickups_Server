@@ -4,16 +4,14 @@ import {
   createTask,
   deleteTaskById,
   updateTaskById,
+  
 } from "../controllers/taskController.js";
 import Authenticated from "../middleware/Authenticated.js";
 
 const taskRoutes = express.Router();
 
-taskRoutes
-  .route("/")
-  .get(Authenticated, showAllTasks)
-  .post(Authenticated, createTask);
-
+taskRoutes.get("/", Authenticated, showAllTasks);
+taskRoutes.post("/:projectId/:sprintId", Authenticated, createTask);
 taskRoutes
   .route("/:id")
   .patch(Authenticated, updateTaskById)

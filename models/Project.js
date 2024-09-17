@@ -9,24 +9,17 @@ const ProjectSchema = new mongoose.Schema({
         type: String
     },
     teams: [{
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Team"
     }],
     owner: {
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true
     },
-    taskId: [
-        {
-            type: mongoose.Schema.ObjectId,
-            ref: "Task",
-            max: 100
-        }
-    ],
     sprintId: [
         {
-            type: mongoose.Schema.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: "Sprint"
         }
     ],

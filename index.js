@@ -4,8 +4,6 @@ import connectDB from './database/connectDB.js'
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 
-
-const app = express();
 dotenv.config({ path: './config/.env' });
 
 
@@ -26,6 +24,8 @@ import teamRoutes from './routes/teamRoutes.js';
 import commentRoutes from './routes/commentRoutes.js';
 import userRouter from './routes/userRoutes.js';
 import AthenticateRoute from './routes/AthenticateRoute.js';
+import { server ,app,} from './Socket/Socket.js';
+import notificationRouter from './routes/notificationRoutes.js';
 
 
 app.use("/api/tasks", taskRoutes);
@@ -34,13 +34,14 @@ app.use("/api/sprints", sprintRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/users", userRouter);
+app.use("/api/notification",notificationRouter);
 app.use('/api/authenticate', AthenticateRoute)
 
 
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     connectDB();
     console.log(`Server is running on port ${PORT}`);
 });

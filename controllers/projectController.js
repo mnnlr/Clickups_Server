@@ -1,4 +1,6 @@
 import Project from "../models/Project.js";
+import Sprint from "../models/Sprint.js";
+import Task from "../models/Task.js";
 
 // Create Project Handler
 const CreateProject = async (req, res) => {
@@ -36,7 +38,6 @@ const getAllProject = async (req, res) => {
           path: "members",
         }
       },
-      "taskId",
       "sprintId"
     ]);
     res.status(200).json({ Data: projects, success: true });
@@ -50,7 +51,7 @@ const getAllPeojectById = async (req, res) => {
   try {
     const projectId = req.params.id;
     const project = await Project.findById(projectId).populate(
-      "owner team.id taskId sprintId"
+      "owner team.id sprintId"
     );
     if (!project) {
       return res.status(404).json({ message: "project not found" });
@@ -84,17 +85,46 @@ const updateProject = async (req, res) => {
 }
 
 
-//delete a project
 const deleteProject = async (req, res) => {
   try {
     const projectId = req.params.id;
-    const deleteProject = await Project.findByIdAndDelete(projectId);
-    if (!deleteProject) {
-      return res.status(404).json({ message: "Project Not found" });
+console.log(projectId);
+
+    // Find the project to be deleted
+    const project = await Project.findById(projectId);
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found", success: false });
     }
-    res
-      .status(200)
-      .json({ message: "Project Delte Successfully", success: true });
+
+    // Delete all associated sprints
+    await Sprint.deleteMany({ _id: { $in: project.sprintId } });
+
+    // Delete all associated tasks
+    await Task.deleteMany({ _id: { $in: project.taskId } });
+
+    // Delete the project
+    await Project.findByIdAndDelete(projectId);
+
+    res.status(200).json({ message: "Project deleted successfully", success: true });
+  } catch (error) {
+    res.status(500).json({ message: error.message, success: false });
+  }
+};
+// Get project by sprint ID
+const getProjectsBySprintId = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    
+    // Find projects that include the sprintId in their sprintId field
+    const projects = await Project.find({projectId})
+      .populate("sprintId", "spritname");
+
+    if (projects.length === 0) {
+      return res.status(404).json({ message: "No projects found for this sprint", success: false });
+    }
+
+    res.status(200).json({ Data: projectsWithTaskNames, success: true });
   } catch (error) {
     res.status(500).json({ message: error.message, success: false });
   }
@@ -105,5 +135,5 @@ export {
   getAllProject,
   getAllPeojectById,
   updateProject,
-  deleteProject,
+  deleteProject,getProjectsBySprintId
 };

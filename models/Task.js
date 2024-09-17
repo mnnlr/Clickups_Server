@@ -2,23 +2,23 @@ import mongoose from 'mongoose';
 
 const taskSchema = new mongoose.Schema({
     userId: {
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
     kanId: {
         type: String
     },
     projectId: {
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Project"
     },
-    SprintId: {
-        type: mongoose.Schema.ObjectId,
+    sprintId: {
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Sprint"
     },
     taskName: {
         type: String,
-        // required: true
+         required: true
     },
     description: {
         comment: {
@@ -46,15 +46,15 @@ const taskSchema = new mongoose.Schema({
         default: 'Low'
     },
     assignees: {
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
     report: {
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     }
 
-})
+},{timestamps:true})
 
 const Task = mongoose.model("Task", taskSchema);
 export default Task;
