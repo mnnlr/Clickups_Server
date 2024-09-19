@@ -4,7 +4,7 @@ const notificationSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    //required: true
   },
   userName: {
     type: String,
@@ -13,7 +13,17 @@ const notificationSchema = new mongoose.Schema({
   taskId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Task',
-    required: true
+    //required: true
+  },
+  projectId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Project',
+  },
+  sprintId: { type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Sprint' },
+  projectName: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Project'
   },
   message: {
     type: String,
