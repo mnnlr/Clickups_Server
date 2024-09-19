@@ -6,7 +6,6 @@ import cookieParser from 'cookie-parser';
 
 dotenv.config({ path: './config/.env' });
 
-
 app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true,
@@ -24,8 +23,9 @@ import teamRoutes from './routes/teamRoutes.js';
 import commentRoutes from './routes/commentRoutes.js';
 import userRouter from './routes/userRoutes.js';
 import AthenticateRoute from './routes/AthenticateRoute.js';
-import { server ,app,} from './Socket/Socket.js';
+import { server, app, } from './Socket/Socket.js';
 import notificationRouter from './routes/notificationRoutes.js';
+import dashboardRoute from './routes/dashboardRoute.js'
 
 
 app.use("/api/tasks", taskRoutes);
@@ -34,8 +34,9 @@ app.use("/api/sprints", sprintRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/users", userRouter);
-app.use("/api/notification",notificationRouter);
-app.use('/api/authenticate', AthenticateRoute)
+app.use("/api/notification", notificationRouter);
+app.use('/api/authenticate', AthenticateRoute);
+app.use('/api/dashboards', dashboardRoute);
 
 
 
