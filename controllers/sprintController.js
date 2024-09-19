@@ -2,7 +2,7 @@ import Sprint from '../models/Sprint.js';
 import Project from '../models/Project.js';
 import Task from '../models/Task.js';
 import { sprintNotification } from './notificationController.js';
-import { io, sprintNotify, TeamMember } from '../Socket/Socket.js';
+import { io, sprintNotify } from '../Socket/Socket.js';
 
 
 const createSprint = async (req, res) => {
