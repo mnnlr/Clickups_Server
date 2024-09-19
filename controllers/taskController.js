@@ -4,7 +4,7 @@ import Projects from "../models/Project.js";
 import Sprint from "../models/Sprint.js";
 import Task from "../models/Task.js";
 import User from "../models/UserModel.js";
-import { TaskAssigned, io } from "../Socket/Socket.js";
+import { TaskAssigned, getReporterSocketId, io } from "../Socket/Socket.js";
 import { saveOfflineNotification } from "./notificationController.js";
 
 const createTask = async (req, res) => {
@@ -76,15 +76,21 @@ const createTask = async (req, res) => {
     const user = await User.findById(userId);
     assigneeSocketIds.forEach(async (socketId, index) => {
       const assigneeId = assigneesArray[index];
+      // console.log("Assigned ID",assigneeId);
+
+      if (assigneeId.toString() === user._id.toString()) {
+        await saveOfflineNotification({ _id: assigneeId, user }, newTask._id, `A new task "${taskName}" created by me ${kanId}.`);
+        return;
+      }
 
       if (socketId) {
         io.to(socketId).emit('notification', {
           message: `A new task "${taskName}" has been assigned to you by ${user.name}.`,
           task: newTask,
         });
-        await saveOfflineNotification({ _id: assigneeId, name: user.name }, newTask._id, `A new task "${taskName}" has been assigned to you by ${user.name}.`);
+        await saveOfflineNotification({ _id: assigneeId, name: user.name }, newTask._id, `A new task "${taskName}" has been assigned to you by ${user.name} and Task Number is ${kanId}.`);
       } else {
-        await saveOfflineNotification({ _id: assigneeId, name: user.name }, newTask._id, `A new task "${taskName}" has been assigned to you by ${user.name}.`);
+        await saveOfflineNotification({ _id: assigneeId, name: user.name }, newTask._id, `A new task "${taskName}" has been assigned to you by ${user.name} and Task Number is ${kanId}.`);
       }
     });
 
@@ -112,23 +118,53 @@ const updateTaskById = async (req, res) => {
         message: "No update fields provided",
       });
     }
-    const updatedTask = await Task.findByIdAndUpdate(id, updates, {
-      new: true,
-      runValidators: true,
-    });
-    if (!updatedTask) {
+
+    // Find the task by ID, populate the reporter and assignee info
+    const task = await Task.findById(id)
+
+    if (!task) {
       return res.status(404).json({
         status: "false",
         message: "Task not found",
       });
     }
+
+    // Update the task with the provided updates
+    const updatedTask = await Task.findByIdAndUpdate(id, updates, {
+      new: true,
+      runValidators: true,
+    }).populate("assignees", "name email _id").populate("report", "name email _id");
+
+    // Notify the reporter that the task has been updated
+    const reporter = task.report;
+
+    // Extract assignee names and construct the message
+    const assigneeNames = updatedTask.assignees.name;
+    const message = `The task "${updatedTask.taskName}" has been updated by ${assigneeNames}.`;
+
+    // Use getReporterSocketId to check if the reporter is online
+    const reporterSocketId = getReporterSocketId(reporter._id);
+
+    if (reporterSocketId) {
+      io.to(reporterSocketId).emit("taskUpdated", {
+        message,
+        taskId: updatedTask._id,
+        taskTitle: updatedTask.taskName,
+      });
+      await saveOfflineNotification(reporter._id, updatedTask._id, message);
+    } else {
+      await saveOfflineNotification(reporter._id, updatedTask._id, message);
+    }
+
     res.status(200).json({
       status: "true",
       data: {
         task: updatedTask,
       },
     });
+
   } catch (err) {
+    console.error("Error updating task:", err.message);
     res.status(400).json({ status: "false", message: err.message });
   }
 };
@@ -136,8 +172,8 @@ const updateTaskById = async (req, res) => {
 const showAllTasks = async (req, res) => {
   try {
     const allTask = await Task.find()
-      .populate("sprintId", "sprintname")   // Populate sprintId with sprintname
-      .populate("userId", "name");          // Populate userId with the user's name
+      .populate("sprintId", "sprintname")
+      .populate("userId", "name");
 
     res.status(200).json({
       status: "success",
@@ -181,22 +217,22 @@ const deleteTaskById = async (req, res) => {
     }
 
     // If task is associated with a project, remove it from the project
-    if (deletedTask.projectId) {
-      try {
-        await Projects.findByIdAndUpdate(
-          deletedTask.projectId,
-          { $pull: { taskId: deletedTask._id } },
-          { new: true }
-        );
-        console.log(`Task ${id} removed from project ${deletedTask.projectId}.`);
-      } catch (projectErr) {
-        console.error("Error updating project:", projectErr.message);
-        return res.status(500).json({
-          status: false,
-          message: `Failed to remove task ${id} from project`,
-        });
-      }
-    }
+    // if (deletedTask.projectId) {
+    //   try {
+    //     await Projects.findByIdAndUpdate(
+    //       deletedTask.projectId,
+    //       { $pull: { taskId: deletedTask._id } },
+    //       { new: true }
+    //     );
+    //     console.log(`Task ${id} removed from project ${deletedTask.projectId}.`);
+    //   } catch (projectErr) {
+    //     console.error("Error updating project:", projectErr.message);
+    //     return res.status(500).json({
+    //       status: false,
+    //       message: `Failed to remove task ${id} from project`,
+    //     });
+    //   }
+    // }
 
     // If task is associated with a sprint, remove it from the sprint
     if (deletedTask.sprintId) {

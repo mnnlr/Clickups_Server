@@ -10,12 +10,60 @@ const saveOfflineNotification = async (user, taskId, message) => {
         isRead: false,
         createdAt: new Date(),
       });
-      console.log(`Notification saved for user ${user.name}`);
+      console.log(`Task Notification saved`);
     } catch (err) {
       console.error("Error saving offline notification:", err.message);
     }
   };
-  
+
+  const sprintNotification = async (userId, sprintId, message) => {
+    try {
+      await Notification.create({
+        userId,
+        sprintId,
+        message,
+        isRead: false,
+        createdAt: new Date(),
+      });
+      console.log(`sprint Notification saved`);
+    } catch (err) {
+      console.error("Error saving offline notification:", err.message);
+    }
+  };
+
+  const projecteNotification = async (userId, projectId,message) => {
+    try {
+      await Notification.create({
+        userId,
+        projectId,
+        //projectName,
+        message,
+        isRead: false,
+        createdAt: new Date(),
+      });
+      console.log(`project Notification saved`);
+    } catch (err) {
+      console.error("Error saving offline notification:", err.message);
+    }
+  };
+
+  const TeamNotification = async (memberIds, message) => {
+    try {
+        const notifications = memberIds.map(memberId => ({
+            userId: memberId,   // The team member who will receive the notification
+            message: message,
+            isRead: false,       // Mark as unread
+            createdAt: new Date() // Timestamp
+        }));
+
+        // Save all notifications in bulk
+        await Notification.insertMany(notifications); 
+        console.log("Notifications stored in the database");
+    } catch (err) {
+        console.error(`Error saving notifications: ${err.message}`);
+    }
+};
+
 // Fetch notifications for a user
 const getNotificationsForUser = async (req, res) => {
   const { userId } = req.params;
@@ -24,6 +72,7 @@ const getNotificationsForUser = async (req, res) => {
     res.status(200).json({
       status: "success",
       Data:notifications
+      
     });
   } catch (err) {
     res.status(500).json({ status: "false", message: err.message });
@@ -77,4 +126,4 @@ const deleteNotification = async (req, res) => {
   }
 };
 
-export { getNotificationsForUser, markNotificationAsRead,saveOfflineNotification, deleteNotification };
+export { getNotificationsForUser,projecteNotification,sprintNotification, TeamNotification,markNotificationAsRead,saveOfflineNotification, deleteNotification };

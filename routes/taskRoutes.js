@@ -14,7 +14,7 @@ taskRoutes.get("/", Authenticated, showAllTasks);
 taskRoutes.post("/:projectId/:sprintId", Authenticated, createTask);
 taskRoutes
   .route("/:id")
-  .patch(Authenticated, updateTaskById)
+  .patch(Authenticated,Authenticated, updateTaskById)
   .delete(Authenticated, deleteTaskById);
 
 export default taskRoutes;

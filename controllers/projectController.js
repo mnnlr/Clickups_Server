@@ -1,6 +1,9 @@
 import Project from "../models/Project.js";
 import Sprint from "../models/Sprint.js";
 import Task from "../models/Task.js";
+import UserModel from "../models/UserModel.js";
+import { io, ProjectMember } from "../Socket/Socket.js";
+import { projecteNotification, saveOfflineNotification } from "./notificationController.js";
 
 // Create Project Handler
 const CreateProject = async (req, res) => {
@@ -20,10 +23,10 @@ const CreateProject = async (req, res) => {
 
     // Save the project to the database
     const saveProject = await newProject.save();
-    res.status(201).json({ message: "Project created successfully", succcess: true });
+    return res.status(201).json({ message: "Project created successfully", succcess: true });
   } catch (error) {
     // Handle server errors
-    res.status(500).json({ message: error.message, success: false });
+    return res.status(500).json({ message: error.message, success: false });
   }
 };
 
@@ -66,29 +69,74 @@ const getAllPeojectById = async (req, res) => {
 const updateProject = async (req, res) => {
   try {
     const projectId = req.params.id;
-    const updateData = req.body;
-    console.log("updated project: " + req.body)
-    const updateproject = await Project.findByIdAndUpdate(
+    const { projectName, description, status, owner, teams } = req.body;
+
+    // Update the project with the new data
+    const updatedProject = await Project.findByIdAndUpdate(
       projectId,
-      updateData,
-      { new: true }
+      { projectName, description, status, owner, teams },
+      { new: true, runValidators: true }
     );
-    if (!updateproject) {
-      return res.status(404).json({ message: "Project Not Found" });
+
+    if (!updatedProject) {
+      return res.status(404).json({ message: "Project Not Found", success: false });
     }
-    res
-      .status(200)
-      .json({ message: "Project Update Successfully", success: true, updateproject });
+
+    // Fetch the updated project with populated teams and their members
+    const populatedProject = await Project.findById(projectId)
+      .populate({
+        path: 'teams',
+        populate: {
+          path: 'members',
+          select: 'name email _id'
+        }
+      });
+      
+    // Get all unique member IDs from all teams
+    const memberIds = populatedProject.teams.flatMap(team => team.members.map(member => member._id.toString()));
+    const uniqueMemberIds = [...new Set(memberIds)];
+
+    // Get socket IDs for online members
+    const onlineSocketIds = ProjectMember(uniqueMemberIds);
+
+    // Notify each online member
+    onlineSocketIds.forEach(async (socketId) => {
+      if (socketId) {
+        // Construct notification message
+        const message = `The project "${updatedProject.projectName}" has been updated.`;
+
+        // Send real-time notification via socket.io
+        io.to(socketId).emit('projectUpdated', {
+          message,
+          projectId: updatedProject._id,
+          projectName: updatedProject.projectName,
+        });
+      }
+    });
+
+    // Save offline notifications for all members
+    uniqueMemberIds.forEach(async (memberId) => {
+      const message = `The project "${updatedProject.projectName}" has been updated.`;
+      await projecteNotification(memberId, updatedProject._id, message);
+    });
+
+    return res.status(200).json({
+      message: "Project Updated Successfully",
+      success: true,
+      project: updatedProject,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message, succcess: false });
+    console.error("Error updating project: ", error.message);
+    return res.status(500).json({ message: error.message, success: false });
   }
-}
+};
+
 
 
 const deleteProject = async (req, res) => {
   try {
     const projectId = req.params.id;
-console.log(projectId);
+    //console.log(projectId);
 
     // Find the project to be deleted
     const project = await Project.findById(projectId);
@@ -106,27 +154,27 @@ console.log(projectId);
     // Delete the project
     await Project.findByIdAndDelete(projectId);
 
-    res.status(200).json({ message: "Project deleted successfully", success: true });
+    return res.status(200).json({ message: "Project deleted successfully", success: true });
   } catch (error) {
-    res.status(500).json({ message: error.message, success: false });
+    return res.status(500).json({ message: error.message, success: false });
   }
 };
 // Get project by sprint ID
 const getProjectsBySprintId = async (req, res) => {
   try {
     const { projectId } = req.params;
-    
+
     // Find projects that include the sprintId in their sprintId field
-    const projects = await Project.find({projectId})
+    const projects = await Project.find({ projectId })
       .populate("sprintId", "spritname");
 
     if (projects.length === 0) {
       return res.status(404).json({ message: "No projects found for this sprint", success: false });
     }
 
-    res.status(200).json({ Data: projectsWithTaskNames, success: true });
+    return res.status(200).json({ Data: projectsWithTaskNames, success: true });
   } catch (error) {
-    res.status(500).json({ message: error.message, success: false });
+    return res.status(500).json({ message: error.message, success: false });
   }
 };
 
@@ -135,5 +183,5 @@ export {
   getAllProject,
   getAllPeojectById,
   updateProject,
-  deleteProject,getProjectsBySprintId
+  deleteProject, getProjectsBySprintId
 };

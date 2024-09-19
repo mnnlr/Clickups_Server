@@ -8,16 +8,39 @@ const app = express();
 const server = http.createServer(app);
 
 export const TaskAssigned = (assignees) => {
-    // Ensure assignees is an array
     const assigneeIds = Array.isArray(assignees) ? assignees : [assignees];
-
     return assigneeIds.map((assigneeId) => users[assigneeId]);
 };
 
+// Function to get the socket ID for the reporter
+export const getReporterSocketId = (reporterId) => {
+  return users[reporterId] || null; 
+};
 
- 
-  
-// Map to store the user ID and their socket ID
+export const TeamMember = (members) => {
+  const memberIds = Array.isArray(members) ? members : [members];
+  return memberIds.map((memberId) => users[memberId]);
+};
+
+export const sprintNotify = (members) => {
+  const memberIds = Array.isArray(members) ? members : [members];
+  const memberSocketMap = {}; // Initialize if not done elsewhere
+
+  memberIds.forEach(memberId => {
+      if (users[memberId]) {
+          memberSocketMap[memberId] = users[memberId]; // Map userId to socketId
+      }
+  });
+
+  return memberSocketMap;  // Return a map of userId -> socketId
+};
+
+
+export const ProjectMember = (members) => {
+  const memberIds = Array.isArray(members) ? members : [members];
+  return memberIds.map((memberId) => users[memberId] || null).filter(socketId => socketId);
+};
+
 const users = {};
 
 const io = new Server(server, {
