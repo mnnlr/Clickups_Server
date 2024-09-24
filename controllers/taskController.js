@@ -1,5 +1,4 @@
 import Comments from "../models/comment.js";
-import Notification from "../models/Notification.js";
 import Projects from "../models/Project.js";
 import Sprint from "../models/Sprint.js";
 import Task from "../models/Task.js";
@@ -262,4 +261,27 @@ const deleteTaskById = async (req, res) => {
   }
 };
 
-export { createTask, showAllTasks, updateTaskById, deleteTaskById };
+const GetassignedTask =async(req,res)=>{
+  const {assignees}= req.params;
+
+  const getAssignedTask = await Task.find({assignees}) .sort({ createdAt: -1 }).limit(4) ;
+  //console.log(getAssignedTask);
+  
+  if(!getAssignedTask){
+    return res.status(404).json({message:"Task not found",success:false})
+  }
+  res.status(200).json({message:"Task found",success:true,data:getAssignedTask})
+}
+
+const GetCreatedTask =async(req,res)=>{
+  const {userId}= req.params;
+
+  const getTask = await Task.find({userId}) .sort({ createdAt: -1 }).limit(4) ;
+  
+  if(!getTask){
+    return res.status(404).json({message:"Task not found",success:false})
+  }
+  res.status(200).json({message:"Task found",success:true,data:getTask})
+
+}
+export { createTask, showAllTasks, updateTaskById, deleteTaskById ,GetCreatedTask,GetassignedTask};

@@ -4,6 +4,8 @@ import {
   createTask,
   deleteTaskById,
   updateTaskById,
+  GetassignedTask,
+  GetCreatedTask,
   
 } from "../controllers/taskController.js";
 import Authenticated from "../middleware/Authenticated.js";
@@ -12,6 +14,8 @@ const taskRoutes = express.Router();
 
 taskRoutes.get("/", Authenticated, showAllTasks);
 taskRoutes.post("/:projectId/:sprintId", Authenticated, createTask);
+taskRoutes.get('/:assignees',GetassignedTask)
+taskRoutes.get('/:userId/task',GetCreatedTask)
 taskRoutes
   .route("/:id")
   .patch(Authenticated,Authenticated, updateTaskById)
