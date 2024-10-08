@@ -14,7 +14,7 @@ const createSprint = async (req, res) => {
             return res.status(400).json({ message: 'taskIds should be an array' });
         }
 
-       
+
         const tasks = await Task.find({ _id: { $in: taskIds } });
         if (tasks.length !== taskIds.length) {
             return res.status(404).json({ message: 'One or more tasks not found' });
@@ -22,8 +22,8 @@ const createSprint = async (req, res) => {
 
         // Find the project by ID and populate team members
         const isProject = await Project.findById(projectId)
-            .select('projectName teams sprintId') 
-            .populate('teams', 'members');  
+            .select('projectName teams sprintId taskIds')
+            .populate('teams', 'members');
 
         if (!isProject) return res.status(404).json({ message: 'Project not found' });
 
@@ -38,7 +38,7 @@ const createSprint = async (req, res) => {
         await newSprint.save();
 
         if (!Array.isArray(isProject.sprintId)) {
-            isProject.sprintId = [];  
+            isProject.sprintId = [];
         }
         isProject.sprintId.push(newSprint._id);
         await isProject.save();
@@ -50,7 +50,7 @@ const createSprint = async (req, res) => {
         const teamSocketIds = sprintNotify(teamMembers);
 
         for (const member of teamMembers) {
-            const socketId = teamSocketIds[member._id];  
+            const socketId = teamSocketIds[member._id];
 
             const message = `A new sprint "${sprintname}" has been created in the project "${isProject.projectName}".`;
 
@@ -176,7 +176,7 @@ const deleteSprintById = async (req, res) => {
 
 const getSprintsByProjectId = async (req, res) => {
     const { projectId } = req.params;
-    console.log(`Fetching sprints for projectId: ${projectId}`);
+    //console.log(`Fetching sprints for projectId: ${projectId}`);
 
     try {
         const project = await Project.findById(projectId);
@@ -185,7 +185,17 @@ const getSprintsByProjectId = async (req, res) => {
             return res.status(404).json({ message: 'Project not found' });
         }
 
-        const sprints = await Sprint.find({ projectId });
+        const sprints = await Sprint.find({ projectId })
+            .populate({
+                path: 'taskIds',
+                model: 'Task',
+                populate: {
+                    path: 'userId',
+                    select: 'name'
+                }
+            })
+            .exec();
+
         console.log('Sprints fetched:', sprints);
         return res.status(200).json({ message: "Sprints fetched successfully", Data: sprints });
     } catch (err) {
