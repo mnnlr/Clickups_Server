@@ -14,10 +14,27 @@ const createSprint = async (req, res) => {
             return res.status(400).json({ message: 'taskIds should be an array' });
         }
 
-
         const tasks = await Task.find({ _id: { $in: taskIds } });
         if (tasks.length !== taskIds.length) {
             return res.status(404).json({ message: 'One or more tasks not found' });
+        }
+
+        // Validate sprint dates
+        const sprintStartDate = new Date(startDate);
+        let sprintEndDate = new Date(endDate);
+
+        if (!endDate) {
+            // If no end date is provided, set the end date to one month from the start date
+            sprintEndDate = new Date(sprintStartDate);
+            sprintEndDate.setMonth(sprintEndDate.getMonth() + 1); // Sprint valid for one month
+        }
+
+        // Ensure sprint does not exceed the one-month period
+        const maxEndDate = new Date(sprintStartDate);
+        maxEndDate.setMonth(maxEndDate.getMonth() + 1); // One month from the start date
+
+        if (sprintEndDate > maxEndDate) {
+            return res.status(400).json({ message: 'Sprint end date cannot be more than one month from the start date.' });
         }
 
         // Find the project by ID and populate team members
@@ -31,8 +48,8 @@ const createSprint = async (req, res) => {
             projectId,
             sprintname,
             taskIds,
-            startDate,
-            endDate,
+            startDate: sprintStartDate,
+            endDate: sprintEndDate
         });
 
         await newSprint.save();

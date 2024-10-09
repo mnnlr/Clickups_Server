@@ -11,8 +11,8 @@ sprintRouter.route('/:projectId')
 
 sprintRouter.route('/:sprintId')
     .patch(updateSprint)
-    .get(GetTasksBySprintId)
     .delete(deleteSprintById)
+    sprintRouter.get("/:sprintId/task",GetTasksBySprintId)
 //sprintRouter.get('/:sprintId',getSprintById)
 
 export default sprintRouter;
