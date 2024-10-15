@@ -233,7 +233,11 @@ const GetTasksBySprintId = async (req, res) => {
         }
 
         // Fetch tasks based on the taskIds from the sprint
-        const tasks = await Task.find({ _id: { $in: sprint.taskIds } });
+        const tasks = await Task.find({ _id: { $in: sprint.taskIds } }) 
+        .populate('userId', 'name') 
+        .populate("sprintId", "sprintname")
+       // console.log(tasks);
+        
 
         return res.status(200).json({ message: "Tasks fetched successfully", success: true, data: tasks });
     } catch (error) {
