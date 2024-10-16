@@ -217,8 +217,9 @@ const individualTask = async (req, res) => {
 const showAllTasks = async (req, res) => {
   try {
     const allTask = await Task.find()
-      .populate("sprintId", "sprintname")  // Populate sprint details
-      .populate("userId", "name"); // Populate user details
+      .populate("sprintId", "sprintname")  
+      .populate("userId", "name")
+      .populate('assignees','name') 
 
     // Filter out tasks that do not have associated projectId or sprintId
     const tasksWithoutProjectOrSprint = allTask.filter(task => !task.projectId && !task.sprintId);
