@@ -39,6 +39,8 @@ const createTask = async (req, res) => {
       report: report || undefined,
     });
 
+    console.log(newTask)
+
     // // for add the task into projectmodel
     // if (projectId) {
     //   const project = await Projects.findById(projectId);
@@ -142,7 +144,7 @@ const updateTaskById = async (req, res) => {
 
     if (reporter) {
       const reporterSocketId = getReporterSocketId(reporter._id);
-    
+
       if (reporterSocketId) {
         io.to(reporterSocketId).emit("taskUpdated", {
           message,
@@ -155,7 +157,7 @@ const updateTaskById = async (req, res) => {
     } else {
       console.warn("Reporter not found, skipping notification.");
     }
-    
+
 
     res.status(200).json({
       status: "true",
@@ -172,7 +174,7 @@ const updateTaskById = async (req, res) => {
 
 const individualTask = async (req, res) => {
   try {
-    const { taskName, description, assignees, report,userId } = req.body;
+    const { taskName, description, assignees, report, userId } = req.body;
 
     // Generating KAN-ID
     const allTasks = await Task.find().exec();
@@ -191,7 +193,7 @@ const individualTask = async (req, res) => {
     // Generating Due Date
     const dueDate = new Date();
     dueDate.setDate(dueDate.getDate() + 7);
-    
+
     // Create new task without projectId and sprintId
     const newTask = await Task.create({
       userId,
@@ -199,8 +201,8 @@ const individualTask = async (req, res) => {
       taskName,
       description,
       dueDate,
-      assignees: assignees ||undefined, 
-      report: report ||undefined, 
+      assignees: assignees || undefined,
+      report: report || undefined,
     });
 
     res.status(201).json({
@@ -218,9 +220,9 @@ const individualTask = async (req, res) => {
 const showAllTasks = async (req, res) => {
   try {
     const allTask = await Task.find()
-      .populate("sprintId", "sprintname")  
+      .populate("sprintId", "sprintname")
       .populate("userId", "name")
-      .populate('assignees','name') 
+      .populate('assignees', 'name')
 
     // Filter out tasks that do not have associated projectId or sprintId
     const tasksWithoutProjectOrSprint = allTask.filter(task => !task.projectId && !task.sprintId);
@@ -249,13 +251,13 @@ const deleteTaskById = async (req, res) => {
         message: "Task not found",
       });
     }
-   // console.log("Deleted Task:", deletedTask);
+    // console.log("Deleted Task:", deletedTask);
     // Delete associated comments
     try {
       await Comments.deleteMany({ taskId: id });
-     // console.log(`Comments associated with task ${id} deleted.`);
+      // console.log(`Comments associated with task ${id} deleted.`);
     } catch (commentErr) {
-     // console.error("Error deleting comments:", commentErr.message);
+      // console.error("Error deleting comments:", commentErr.message);
       return res.status(500).json({
         status: false,
         message: `Failed to delete comments for task ${id}`,
@@ -290,7 +292,7 @@ const deleteTaskById = async (req, res) => {
         );
         //console.log(`Task ${id} removed from sprint ${deletedTask.sprintId}.`);
       } catch (sprintErr) {
-       // console.error("Error updating sprint:", sprintErr.message);
+        // console.error("Error updating sprint:", sprintErr.message);
         return res.status(500).json({
           status: false,
           message: `Failed to remove task ${id} from sprint`,
@@ -331,4 +333,4 @@ const GetCreatedTask = async (req, res) => {
   res.status(200).json({ message: "Task found", success: true, data: getTask })
 
 }
-export { createTask, showAllTasks, updateTaskById, deleteTaskById, GetCreatedTask, GetassignedTask,individualTask };
+export { createTask, showAllTasks, updateTaskById, deleteTaskById, GetCreatedTask, GetassignedTask, individualTask };
