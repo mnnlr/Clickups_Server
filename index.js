@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 
 dotenv.config({ path: './config/.env' });
+
 app.use(cors({
     origin: ['http://localhost:5173', process.env.CLIENT_URI],
     credentials: true,
