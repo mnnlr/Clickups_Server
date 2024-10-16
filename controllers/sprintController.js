@@ -236,6 +236,10 @@ const GetTasksBySprintId = async (req, res) => {
         const tasks = await Task.find({ _id: { $in: sprint.taskIds } }) 
         .populate('userId', 'name') 
         .populate("sprintId", "sprintname")
+        .populate({
+            path:'assignees',
+            select:'name userId'
+        })
        // console.log(tasks);
         
 

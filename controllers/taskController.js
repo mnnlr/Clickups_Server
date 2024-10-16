@@ -133,31 +133,29 @@ const updateTaskById = async (req, res) => {
       runValidators: true,
     }).populate("assignees", "name email _id").populate("report", "name email _id");
 
-    // Notify the reporter that the task has been updated
-    const reporter = task.report;
-    if (!reporter) {
-      return res.status(400).json({ message: "Please select an Reporter for the task." });
-    }
-
     // Extract assignee names and construct the message
-    const assigneeNames = updatedTask.assignees.name;
+    const assigneeNames = updatedTask.assignees?.name || "Unknown User";
 
     const message = `The task "${updatedTask.taskName}" has been updated by ${assigneeNames}.`;
 
-    // Use getReporterSocketId to check if the reporter is online
-    const reporterSocketId = getReporterSocketId(reporter._id);
+    const reporter = task?.report;
 
-
-    if (reporterSocketId) {
-      io.to(reporterSocketId).emit("taskUpdated", {
-        message,
-        taskId: updatedTask._id,
-        taskTitle: updatedTask.taskName,
-      });
-      // await saveOfflineNotification(reporter._id, updatedTask._id, message);
+    if (reporter) {
+      const reporterSocketId = getReporterSocketId(reporter._id);
+    
+      if (reporterSocketId) {
+        io.to(reporterSocketId).emit("taskUpdated", {
+          message,
+          taskId: updatedTask._id,
+          taskTitle: updatedTask.taskName,
+        });
+      } else {
+        await saveOfflineNotification(reporter._id, updatedTask._id, message);
+      }
     } else {
-      await saveOfflineNotification(reporter._id, updatedTask._id, message);
+      console.warn("Reporter not found, skipping notification.");
     }
+    
 
     res.status(200).json({
       status: "true",
@@ -172,23 +170,69 @@ const updateTaskById = async (req, res) => {
   }
 };
 
+const individualTask = async (req, res) => {
+  try {
+    const { taskName, description, assignees, report, status } = req.body;
+
+    // Generating KAN-ID
+    const allTasks = await Task.find().exec();
+    console.log("this is lastTask", allTasks);
+    let maxKanId = 0;
+
+    allTasks.forEach((task) => {
+      const kanNumber = parseInt(task.kanId.split("-")[1], 10);
+      if (kanNumber > maxKanId) {
+        maxKanId = kanNumber;
+      }
+    });
+
+    const kanId = `KAN-${maxKanId + 1}`;
+
+    // Generating Due Date
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 7);
+    
+    // Create new task without projectId and sprintId
+    const newTask = await Task.create({
+      kanId,
+      taskName,
+      description,
+      dueDate,
+      assignees: assignees ||undefined, 
+      report: report ||undefined, 
+    });
+
+    res.status(201).json({
+      status: true,
+      message: "Task created successfully",
+      data: { task: newTask },
+    });
+  } catch (err) {
+    console.error("Error creating individual task:", err.message);
+    res.status(500).json({ status: false, message: err.message });
+  }
+};
+
+
 const showAllTasks = async (req, res) => {
   try {
     const allTask = await Task.find()
-      .populate("sprintId", "endDate")
-      .populate("userId", "name");
+      .populate("sprintId", "sprintname")  // Populate sprint details
+      .populate("userId", "name"); // Populate user details
+
+    // Filter out tasks that do not have associated projectId or sprintId
+    const tasksWithoutProjectOrSprint = allTask.filter(task => !task.projectId && !task.sprintId);
 
     res.status(200).json({
       status: "success",
-      result: allTask.length,
-      data: {
-        allTask,
-      },
+      result: tasksWithoutProjectOrSprint.length,
+      data: tasksWithoutProjectOrSprint
     });
   } catch (err) {
     res.status(400).json({ status: "false", message: err.message });
   }
 };
+
 
 
 const deleteTaskById = async (req, res) => {
@@ -285,4 +329,4 @@ const GetCreatedTask = async (req, res) => {
   res.status(200).json({ message: "Task found", success: true, data: getTask })
 
 }
-export { createTask, showAllTasks, updateTaskById, deleteTaskById, GetCreatedTask, GetassignedTask };
+export { createTask, showAllTasks, updateTaskById, deleteTaskById, GetCreatedTask, GetassignedTask,individualTask };
