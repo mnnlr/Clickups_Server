@@ -8,6 +8,11 @@ import { saveOfflineNotification } from "./notificationController.js";
 const createTask = async (req, res) => {
   const { userId, taskName, description, assignees, report } = req.body;
   const { projectId, sprintId } = req.params;
+  if (description) {
+    console.log("this is description------------------------>" + description)
+  } else {
+    console.log("Description is empty or null")
+  }
   try {
     // Generating KAN-ID:-
     const allTask = await Task.find().exec();
@@ -176,9 +181,15 @@ const individualTask = async (req, res) => {
   try {
     const { taskName, description, assignees, report, userId } = req.body;
 
+    if (description) {
+      console.log("this is body------------------------>" + taskName, description, assignees, report, userId)
+    } else {
+      console.log("body is empty or null")
+    }
+
     // Generating KAN-ID
     const allTasks = await Task.find().exec();
-    console.log("this is lastTask", allTasks);
+    // console.log("this is lastTask", allTasks);
     let maxKanId = 0;
 
     allTasks.forEach((task) => {
@@ -204,6 +215,8 @@ const individualTask = async (req, res) => {
       assignees: assignees || undefined,
       report: report || undefined,
     });
+
+    console.log("New Task " + newTask)
 
     res.status(201).json({
       status: true,

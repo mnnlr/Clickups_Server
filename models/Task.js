@@ -18,15 +18,10 @@ const taskSchema = new mongoose.Schema({
     },
     taskName: {
         type: String,
-         required: true
+        required: true
     },
     description: {
-        comment: {
-            type: String
-        },
-        attachment: {
-            type: String
-        }
+        type: String
     },
     dueDate: {
         type: Date
@@ -50,7 +45,7 @@ const taskSchema = new mongoose.Schema({
         ref: "User"
     }
 
-},{timestamps:true})
+}, { timestamps: true })
 
 const Task = mongoose.model("Task", taskSchema);
 export default Task;
