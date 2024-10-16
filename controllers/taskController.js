@@ -172,7 +172,7 @@ const updateTaskById = async (req, res) => {
 
 const individualTask = async (req, res) => {
   try {
-    const { taskName, description, assignees, report, status } = req.body;
+    const { taskName, description, assignees, report,userId } = req.body;
 
     // Generating KAN-ID
     const allTasks = await Task.find().exec();
@@ -194,6 +194,7 @@ const individualTask = async (req, res) => {
     
     // Create new task without projectId and sprintId
     const newTask = await Task.create({
+      userId,
       kanId,
       taskName,
       description,
