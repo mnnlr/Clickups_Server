@@ -45,7 +45,7 @@ const users = {};
 
 const io = new Server(server, {
   cors: {
-    origin: 'https://mnnlr-workspace.netlify.app/',
+    origin: 'https://mnnlr-workspace.netlify.app',
     methods: ['GET', 'POST'],
   },
 });
