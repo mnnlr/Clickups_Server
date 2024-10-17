@@ -1,4 +1,9 @@
 import jwt from "jsonwebtoken";
+import dotenv from 'dotenv'
+
+dotenv.config({ path: './config/.env' });
+
+//console.log( process.env.KEY);
 
 const isAuthenticated = (req, res, next) => {
   try {
