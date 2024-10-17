@@ -1,9 +1,15 @@
 import jwt from "jsonwebtoken";
+import dotenv from 'dotenv'
+
+dotenv.config({ path: './config/.env' });
+
+//console.log( process.env.KEY);
 
 const isAuthenticated = (req, res, next) => {
   try {
-  const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
-    // const token = req.cookies.tokenData
+    const token =
+      req.headers.authorization && req.headers.authorization.split(" ")[1] || req.cookies.User
+    // const token = 
     console.log('token is----->', token);
     if (!token) {
       return res
@@ -12,7 +18,7 @@ const isAuthenticated = (req, res, next) => {
     }
     const decoded = jwt.verify(token, process.env.KEY);
     req.user = decoded.user;
-    // console.log("User is authenticated.");
+     console.log("User is authenticated.");
     next();
   } catch (err) {
     console.error(err);
