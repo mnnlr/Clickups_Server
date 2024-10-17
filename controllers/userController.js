@@ -25,7 +25,7 @@ const handleUserLogin = async (req, res) => {
           console.log(err);
           res.status(500).json({ message: "Something wrong in jwt" });
         } else {
-          res.cookie("tokenData", token, {
+          res.cookie("User", token, {
             httpOnly: true,
             path: '/', 
             maxAge: 7 * 24 * 60 * 60 * 1000 
