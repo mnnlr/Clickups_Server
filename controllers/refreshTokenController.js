@@ -19,7 +19,7 @@ const getRefreshToken = async (req, res, next) => {
         .json({ success: false, message: "please login to access" });
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN, (err, decodedUser) => {
       console.log('this is id from decode user in refrsh toioken controller', decodedUser);
-      if (err || findUser?._id.toString() !== decodedUser?.user?._id) {
+      if (err || findUser?._id.toString() !== decodedUser?._id) {
         return res
           .status(401)
           .json({ success: false, message: "Please login to access" });
@@ -28,7 +28,7 @@ const getRefreshToken = async (req, res, next) => {
       const accessToken = jwt.sign(
         { _id: findUser._id },
         process.env.ACCESS_TOKEN,
-        { expiresIn: "1h" }
+        { expiresIn: "30s" }
       );
       return res.status(200).json({ ...findUser, accessToken });
     });

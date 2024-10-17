@@ -19,13 +19,13 @@ const handleUserLogin = async (req, res) => {
       const { password: _, refreshToken, ...rest } = user._doc;
 
       const payload = {
-        user: {
           _id: user._id,
-        },
       };
       const AccessToken = jwt.sign(payload, process.env.ACCESS_TOKEN, {
-        expiresIn: "1h",
+        expiresIn: "30s",
       });
+
+      console.log('this is accessToken ', AccessToken);
       const RefreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN, {
         expiresIn: "15d",
       })
@@ -90,6 +90,12 @@ const handleUserLogin = async (req, res) => {
     }
   };
 
+  const LogoutUser = (req, res) => {
+    return res
+      .clearCookie("Token").status(200).json
+      ({ success: true, message: "Logout Successfully" });
+  };
+
 const getAllUsers = async (req, res) => {
     const users = await UserModel.find();
     return res.status(200).json({ users });
@@ -99,5 +105,5 @@ const getAllUsers = async (req, res) => {
 export {
     handleUserLogin,
     handleUserSignUp,
-    getAllUsers
+    getAllUsers, LogoutUser,
 }

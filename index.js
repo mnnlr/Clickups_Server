@@ -28,7 +28,7 @@ import { server, app, } from './Socket/Socket.js';
 import notificationRouter from './routes/notificationRoutes.js';
 import dashboardRoute from './routes/dashboardRoute.js'
 import refreshTokenRoute from './routes/refreshTokenRoute.js';
-
+import logOutRoute from './routes/userRoutes.js';
 app.use(refreshTokenRoute);
 
 app.use("/api/tasks", taskRoutes);
@@ -40,6 +40,7 @@ app.use("/api/users", userRouter);
 app.use("/api/notification", notificationRouter);
 app.use('/api/authenticate', AthenticateRoute);
 app.use('/api/dashboards', dashboardRoute);
+app.use('/api', logOutRoute);
 
 
 
