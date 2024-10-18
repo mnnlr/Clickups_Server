@@ -22,7 +22,7 @@ const handleUserLogin = async (req, res) => {
           _id: user._id,
       };
       const AccessToken = jwt.sign(payload, process.env.ACCESS_TOKEN, {
-        expiresIn: "30s",
+        expiresIn: "1h",
       });
 
       console.log('this is accessToken ', AccessToken);
