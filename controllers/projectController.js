@@ -178,10 +178,11 @@ const getProjectsBySprintId = async (req, res) => {
   }
 };
 
+
 export {
   CreateProject,
   getAllProject,
   getAllPeojectById,
   updateProject,
-  deleteProject, getProjectsBySprintId
+  deleteProject, getProjectsBySprintId,
 };

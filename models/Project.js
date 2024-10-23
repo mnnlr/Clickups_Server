@@ -27,6 +27,11 @@ const ProjectSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
+    individualtaskId: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "Individual Tasks",
+        default: [] 
+    },
     status: {
         type: String,
         enum: ["completed", "active", "inactive"],

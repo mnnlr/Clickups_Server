@@ -177,57 +177,6 @@ const updateTaskById = async (req, res) => {
   }
 };
 
-const individualTask = async (req, res) => {
-  try {
-    const { taskName, description, assignees, report, userId } = req.body;
-
-    if (description) {
-      console.log("this is body------------------------>" + taskName, description, assignees, report, userId)
-    } else {
-      console.log("body is empty or null")
-    }
-
-    // Generating KAN-ID
-    const allTasks = await Task.find().exec();
-    // console.log("this is lastTask", allTasks);
-    let maxKanId = 0;
-
-    allTasks.forEach((task) => {
-      const kanNumber = parseInt(task.kanId.split("-")[1], 10);
-      if (kanNumber > maxKanId) {
-        maxKanId = kanNumber;
-      }
-    });
-
-    const kanId = `KAN-${maxKanId + 1}`;
-
-    // Generating Due Date
-    const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + 7);
-
-    // Create new task without projectId and sprintId
-    const newTask = await Task.create({
-      userId,
-      kanId,
-      taskName,
-      description,
-      dueDate,
-      assignees: assignees || undefined,
-      report: report || undefined,
-    });
-
-    console.log("New Task " + newTask)
-
-    res.status(201).json({
-      status: true,
-      message: "Task created successfully",
-      data: { task: newTask },
-    });
-  } catch (err) {
-    console.error("Error creating individual task:", err.message);
-    res.status(500).json({ status: false, message: err.message });
-  }
-};
 
 
 const showAllTasks = async (req, res) => {
@@ -346,4 +295,4 @@ const GetCreatedTask = async (req, res) => {
   res.status(200).json({ message: "Task found", success: true, data: getTask })
 
 }
-export { createTask, showAllTasks, updateTaskById, deleteTaskById, GetCreatedTask, GetassignedTask, individualTask };
+export { createTask, showAllTasks, updateTaskById, deleteTaskById, GetCreatedTask, GetassignedTask,};
