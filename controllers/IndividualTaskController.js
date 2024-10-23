@@ -140,7 +140,10 @@ const getTasksByProjectId = async (req, res) => {
         const { projectId } = req.params;
 
         // Find tasks associated with the specified project ID
-        const tasks = await IndividualTask.find({ projectId });
+        const tasks = await IndividualTask.find({ projectId })
+        .populate("userId", "name")
+        .populate('assignees', 'name')
+  
 
         if (!tasks.length) {
             return res.status(404).json({
