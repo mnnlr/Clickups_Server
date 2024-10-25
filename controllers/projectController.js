@@ -42,7 +42,8 @@ const getAllProject = async (req, res) => {
         }
       },
       "sprintId"
-    ]);
+    ]).populate('teams.teamIDs').populate('teams.memberIDs');
+    console.log(projects);
     res.status(200).json({ Data: projects, success: true });
   } catch (error) {
     res.status(500).json({ message: error.message, success: false });
@@ -78,23 +79,22 @@ const updateProject = async (req, res) => {
       { new: true, runValidators: true }
     );
 
+    console.log(teams)
+
     if (!updatedProject) {
       return res.status(404).json({ message: "Project Not Found", success: false });
     }
 
     // Fetch the updated project with populated teams and their members
     const populatedProject = await Project.findById(projectId)
-      .populate({
-        path: 'teams',
-        populate: {
-          path: 'members',
-          select: 'name email _id'
-        }
-      });
-      
+      .populate('teams.teamIDs').populate('teams.memberIDs');
+
+    console.log(populatedProject);
+
     // Get all unique member IDs from all teams
-    const memberIds = populatedProject.teams.flatMap(team => team.members.map(member => member._id.toString()));
-    const uniqueMemberIds = [...new Set(memberIds)];
+    const teamIds = populatedProject.teams.teamIDs.map(team => team._id.toString());
+    const memberIds = populatedProject.teams.memberIDs.map(member => member._id.toString());
+    const uniqueMemberIds = [...new Set([...memberIds, ...teamIds])];
 
     // Get socket IDs for online members
     const onlineSocketIds = ProjectMember(uniqueMemberIds);
@@ -130,6 +130,7 @@ const updateProject = async (req, res) => {
     return res.status(500).json({ message: error.message, success: false });
   }
 };
+
 
 
 

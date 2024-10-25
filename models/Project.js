@@ -8,10 +8,16 @@ const ProjectSchema = new mongoose.Schema({
     description: {
         type: String
     },
-    teams: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Team"
-    }],
+    teams: {
+        teamIDs: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Team"
+        }],
+        memberIDs: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        }]
+    },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -30,7 +36,7 @@ const ProjectSchema = new mongoose.Schema({
     individualtaskId: {
         type: [mongoose.Schema.Types.ObjectId],
         ref: "Individual Tasks",
-        default: [] 
+        default: []
     },
     status: {
         type: String,
