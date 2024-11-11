@@ -85,7 +85,7 @@ export const handleDeleteWorkspace = async (req, res) => {
     try {
         const deletedWorkspace = await Workspace.findByIdAndDelete(id);
         if (!deletedWorkspace) return sendErrorResponse(res, 404, `Workspace with id: ${id} is not present in database (controller: handleDeleteWorkspace).`);
-        return sendSuccessResponse(res, 200, `Workspace with id: ${id} is deleted.`, deletedWorkspace);
+        return sendSuccessResponse(res, 200, `Workspace with id: ${id} is deleted.`);
     } catch (err) {
         return sendErrorResponse(res, 500, "Error in server while deleting workspace (controller: handleDeleteWorkspace).", err);
     }
