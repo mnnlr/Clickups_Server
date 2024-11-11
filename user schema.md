@@ -58,3 +58,41 @@ NEW ER Daigram
                             | - members: [userId]|
                             +--------------------+
 
+//workspace 
+workspace -> title,createdby,members
+Documents-> title,content,contributers[member_id],workspace_id
+
+
+
++----------------+           +-----------------+          +---------------+
+|    Workspace   |           |     Member      |          |   Documents   |
+|----------------|           |-----------------|          |---------------|
+| title          | <-------+ | member_id (PK)  | +----->  | title         |
+| createdBy (FK) |           | name            |          | content       |
+| members (FK)   |           | email           |          | contributors  |
++----------------+           +-----------------+          | workspace_id (FK)|
+       |                                                   +---------------+
+       | 1..N
+       |
+       | N..M
++---------------------+
+|  DocumentContributor |
+|---------------------|
+| document_id (FK)    |
+| member_id (FK)      |
++---------------------+
+
+
++----------------+           +-----------------+          +---------------+
+|    Workspace   |           |     Member      |          |   Documents   |
+|----------------|           |-----------------|          |---------------|
+| title          | <-------+ | member_id (PK)  | +----->  | title         |
+| createdBy (FK) |           | name            |          | content       |
+| members (FK)   |           | email           |          | contributors  |
++----------------+           +-----------------+          | workspace_id (FK)|
+                                                          +---------------+
+
+
+service Now
+
+Create incidents -> incident_number,
