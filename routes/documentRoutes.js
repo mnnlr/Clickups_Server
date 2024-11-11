@@ -3,7 +3,7 @@ import { createDocument, getDocuments, updateDocument, deleteDocument, getDocume
 
 const documentRouter = express.Router();
 
-documentRouter.route("/:id").patch(updateDocument).delete(deleteDocument).get(getDocumentById);
 documentRouter.route("/").get(getDocuments).post(createDocument);;
+documentRouter.route("/:id").delete(deleteDocument).get(getDocumentById).patch(updateDocument);
 
 export default documentRouter;

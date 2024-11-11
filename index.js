@@ -45,8 +45,8 @@ app.use("/api/notification", notificationRouter);
 app.use('/api/authenticate', AthenticateRoute);
 app.use('/api/dashboards', dashboardRoute);
 app.use('/api/project/individualTask', IndividualTaskRoute);
-app.use('/api/workspce', workspceRouter);
-app.use('/api/document', documentRouter);
+app.use('/api/workspaces', workspceRouter);
+app.use('/api/workspace/documents', documentRouter);
 app.use('/api', logOutRoute);
 
 

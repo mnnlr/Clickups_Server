@@ -4,20 +4,25 @@ import { sendSuccessResponse, sendErrorResponse } from "./responseHelpers.js";
 
 export const createDocument = async (req, res) => {
     try {
-        const { documentTitle, documentContent, workspaceId, createdBy, contributors } = req.body;
+        const { documentTitle, createdBy, workspaceId } = req.body;
 
-        const workspace = await Workspace.findById(workspaceId);
-        if (!workspace) {
-            return sendErrorResponse(res, 404, "Workspace not found.");
+
+        if (!documentTitle || !createdBy || !workspaceId) {
+            return sendErrorResponse(res, 404, "DocumentTitle, CreatedBy and workspaceId is not provided.");
         }
 
-        const newDocument = new Document({ documentTitle, documentContent, workspaceId, createdBy, contributors });
+        const workspace = await Workspace.findById(workspaceId);
+        if (!workspace) return sendErrorResponse(res, 404, `Workspace with id: ${workspaceId} not found.`);
+
+        const newDocument = new Document({ documentTitle, createdBy });
         await newDocument.save();
+
+        const populatedDoc = await Document.findById(newDocument._id).populate("createdBy")
 
         workspace.workspaceDocuments.push(newDocument._id);
         await workspace.save();
 
-        sendSuccessResponse(res, 201, "Document created and added to workspace successfully", newDocument);
+        sendSuccessResponse(res, 201, `Document with id: ${newDocument._id} created and added to workspace with id: {workspaceId} successfully`, populatedDoc);
     } catch (error) {
         sendErrorResponse(res, 500, "Error creating document.", error.message);
     }
@@ -35,9 +40,10 @@ export const getDocuments = async (req, res) => {
 export const getDocumentById = async (req, res) => {
     try {
         const { id } = req.params;
+        if (!id) return sendErrorResponse(res, 404, "Id didn't provided.");
         const document = await Document.findById(id).populate("createdBy contributors");
         if (!document) {
-            return sendErrorResponse(res, 404, "Document not found");
+            return sendErrorResponse(res, 404, `document with id: ${id} not found.`);
         }
         sendSuccessResponse(res, 200, "Document retrieved successfully", document);
     } catch (error) {
@@ -49,7 +55,7 @@ export const updateDocument = async (req, res) => {
     try {
         const { id } = req.params;
         const updatedData = req.body;
-        const document = await Document.findByIdAndUpdate(id, updatedData, { new: true }).populate("createdBy contributors");
+        const document = await Document.findByIdAndUpdate(id, { $set: updatedData }, { new: true }).populate("createdBy contributors");
         if (!document) {
             return sendErrorResponse(res, 404, "Document not found");
         }
@@ -62,19 +68,19 @@ export const updateDocument = async (req, res) => {
 export const deleteDocument = async (req, res) => {
     try {
         const { id } = req.params;
+        const { workspaceId } = req.body;
+        if (!id || !workspaceId) return sendErrorResponse(res, 404, "Document id or workspace id didn't provided.");
 
         const document = await Document.findById(id);
-        if (!document) {
-            return sendErrorResponse(res, 404, "Document not found");
-        }
+        if (!document) return sendErrorResponse(res, 404, `Document with id: ${id} not found.`);
 
-        await Workspace.findByIdAndUpdate(document.workspaceId, {
+        await Workspace.findByIdAndUpdate(workspaceId, {
             $pull: { workspaceDocuments: id }
         });
 
         await Document.findByIdAndDelete(id);
 
-        sendSuccessResponse(res, 200, "Document deleted successfully");
+        sendSuccessResponse(res, 200, `Document with id: ${workspaceId} deleted successfully`);
     } catch (error) {
         sendErrorResponse(res, 500, "Error deleting document", error.message);
     }

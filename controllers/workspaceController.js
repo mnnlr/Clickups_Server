@@ -13,8 +13,8 @@ export const getAllWorkspace = async (req, res) => {
 }
 
 export const getWorkspaceById = async (req, res) => {
-    const { id } = req.body;
-
+    const { id } = req.params;
+    if (!id) return sendErrorResponse(res, 404, "Id didn't provided.");
     try {
         const workspaceData = await Workspace.findById(id).populate("workspaceDocuments workspaceMembers workspaceCreatedBy");
         if (workspaceData) return sendSuccessResponse(res, 200, "Data in database.", workspaceData);
@@ -29,7 +29,7 @@ export const handleCreateWorkspace = async (req, res) => {
     if (!workspaceName || !workspaceCreatedBy) return sendErrorResponse(res, 400, "Workspace name or created by is not provided.");
 
     try {
-        const createWorkspace = await Workspace.create({ workspaceName, workspaceCreatedBy });
+        const createWorkspace = await Workspace.create({ workspaceName, workspaceCreatedBy }).populate("workspaceDocuments workspaceMembers workspaceCreatedBy");;
 
         if (!createWorkspace) return sendErrorResponse(res, 500, "Error while creating workspace (controller: handleCreateWorkspce).");
 
@@ -69,6 +69,7 @@ export const handleUpdateWorkspace = async (req, res) => {
                 }
             }
         }
+        // $set is update only given data fields.
         const updatedWorkspace = await Workspace.findByIdAndUpdate(id, { $set: updatedData }, { new: true, runValidators: true }).populate("workspaceDocuments workspaceMembers workspaceCreatedBy");
         if (!updatedWorkspace) return sendErrorResponse(res, 404, `Workspace with id: ${id} is not present in database (controller: handleUpdateWorkspace).`);
         return sendSuccessResponse(res, 200, `Workspace with id: ${id} is updated.`, updatedWorkspace);

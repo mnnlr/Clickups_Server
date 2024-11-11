@@ -12,10 +12,10 @@ const documentSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'User'
     },
-    contributors: {
+    contributors: [{
         type: mongoose.Schema.ObjectId,
         ref: 'User'
-    }
+    }]
 }, { timestamps: true });
 
 const Document = mongoose.model("Document", documentSchema);
