@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 dotenv.config({ path: './config/.env' });
 
 app.use(cors({
-    origin: ["http://localhost:5173" ,process.env.CLIENT_URI],
+    origin: ["http://localhost:5173", process.env.CLIENT_URI],
     credentials: true,
 }));
 
@@ -30,6 +30,9 @@ import dashboardRoute from './routes/dashboardRoute.js'
 import refreshTokenRoute from './routes/refreshTokenRoute.js';
 import logOutRoute from './routes/userRoutes.js';
 import IndividualTaskRoute from './routes/IndividualRoute.js';
+import workspceRouter from './routes/workspaceRoutes.js';
+import documentRouter from './routes/documentRoutes.js';
+
 app.use(refreshTokenRoute);
 
 app.use("/api/tasks", taskRoutes);
@@ -41,7 +44,9 @@ app.use("/api/users", userRouter);
 app.use("/api/notification", notificationRouter);
 app.use('/api/authenticate', AthenticateRoute);
 app.use('/api/dashboards', dashboardRoute);
-app.use('/api/project/individualTask',IndividualTaskRoute)
+app.use('/api/project/individualTask', IndividualTaskRoute);
+app.use('/api/workspce', workspceRouter);
+app.use('/api/document', documentRouter);
 app.use('/api', logOutRoute);
 
 
