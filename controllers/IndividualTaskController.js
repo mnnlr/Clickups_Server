@@ -1,11 +1,11 @@
 import IndividualTask from "../models/individualTask.js";
-import  Projects from '../models/Project.js'
+import Projects from '../models/Project.js'
 
 // Create an individual task
 const individualTaskCreate = async (req, res) => {
     try {
-        const { taskName, description, assignees, report, userId} = req.body;
-        const {projectId}=req.params;
+        const { taskName, description, assignees, report, userId } = req.body;
+        const { projectId } = req.params;
 
         // Log task details
         if (description) {
@@ -43,64 +43,64 @@ const individualTaskCreate = async (req, res) => {
             projectId: projectId || undefined
         });
 
-       // Add the task to the specified project
-       if (projectId) {
-        const project = await Projects.findById(projectId);
-        if (project) {
-            // Check if taskId is defined and is an array
-            if (!project.individualtaskId || !Array.isArray(project.individualtaskId)) {
-                project.individualtaskId = []; 
-            }
+        // Add the task to the specified project
+        if (projectId) {
+            const project = await Projects.findById(projectId);
+            if (project) {
+                // Check if taskId is defined and is an array
+                if (!project.individualtaskId || !Array.isArray(project.individualtaskId)) {
+                    project.individualtaskId = [];
+                }
 
-            if (project.individualtaskId.length >= 100) {
-                return res.status(400).json({
-                   success: false,
-                    message: "This project has reached the maximum number of tasks. Please create a new project.",
-                });
-            }
+                if (project.individualtaskId.length >= 100) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "This project has reached the maximum number of tasks. Please create a new project.",
+                    });
+                }
 
-            // Add the task ID to the project's task list
-            await Projects.findByIdAndUpdate(
-                projectId,
-                { $push: {individualtaskId: newTask._id } },
-                { new: true }
-            );
-        }
+                // Add the task ID to the project's task list
+                await Projects.findByIdAndUpdate(
+                    projectId,
+                    { $push: { individualtaskId: newTask._id } },
+                    { new: true }
+                );
+            }
         }
 
         console.log("New Task:", newTask);
 
-       return res.status(201).json({
-           success: true,
+        return res.status(201).json({
+            success: true,
             message: "Task created successfully",
             data: { task: newTask },
         });
     } catch (err) {
         console.error("Error creating individual task:", err.message);
-        res.status(500).json({success: false, message: err.message });
+        res.status(500).json({ success: false, message: err.message });
     }
 };
 
 // Update an individual task
 const individualTaskUpdate = async (req, res) => {
     try {
-        const { id } = req.params; 
+        const { id } = req.params;
         const updateData = req.body;
 
         const updatedTask = await IndividualTask.findByIdAndUpdate(id, updateData, { new: true });
 
         if (!updatedTask) {
-            return res.status(404).json({success: false, message: "Task not found" });
+            return res.status(404).json({ success: false, message: "Task not found" });
         }
 
-       return res.status(200).json({
-           success: true,
+        return res.status(200).json({
+            success: true,
             message: "Task updated successfully",
             data: { task: updatedTask },
         });
     } catch (err) {
         console.error("Error updating individual task:", err.message);
-     return  res.status(500).json({success: false, message: err.message });
+        return res.status(500).json({ success: false, message: err.message });
     }
 };
 
@@ -112,7 +112,7 @@ const individualTaskDelete = async (req, res) => {
         const deletedTask = await IndividualTask.findByIdAndDelete(id);
 
         if (!deletedTask) {
-            return res.status(404).json({success: false, message: "Task not found" });
+            return res.status(404).json({ success: false, message: "Task not found" });
         }
 
         // Remove the task ID from the associated project
@@ -125,12 +125,12 @@ const individualTaskDelete = async (req, res) => {
         }
 
         return res.status(200).json({
-           success: true,
+            success: true,
             message: "Task deleted successfully",
         });
     } catch (err) {
         console.error("Error deleting individual task:", err.message);
-       return res.status(500).json({ success: false, message: err.message });
+        return res.status(500).json({ success: false, message: err.message });
     }
 };
 
@@ -141,9 +141,10 @@ const getTasksByProjectId = async (req, res) => {
 
         // Find tasks associated with the specified project ID
         const tasks = await IndividualTask.find({ projectId })
-        .populate("userId", "name")
-        .populate('assignees', 'name')
-  
+            .populate("userId", "name")
+            .populate('assignees', 'name')
+            .populate('report', 'name')
+
 
         if (!tasks.length) {
             return res.status(404).json({
@@ -166,4 +167,4 @@ const getTasksByProjectId = async (req, res) => {
 };
 
 
-export { individualTaskCreate, individualTaskUpdate, individualTaskDelete,getTasksByProjectId };
+export { individualTaskCreate, individualTaskUpdate, individualTaskDelete, getTasksByProjectId };

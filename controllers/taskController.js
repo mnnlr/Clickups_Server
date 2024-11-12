@@ -134,11 +134,12 @@ const updateTaskById = async (req, res) => {
       });
     }
 
-    // Update the task with the provided updates
     const updatedTask = await Task.findByIdAndUpdate(id, updates, {
       new: true,
       runValidators: true,
     }).populate("assignees", "name email _id").populate("report", "name email _id");
+
+    console.log("updatedTask: ", updatedTask);
 
     // Extract assignee names and construct the message
     const assigneeNames = updatedTask.assignees?.name || "Unknown User";
@@ -185,6 +186,7 @@ const showAllTasks = async (req, res) => {
       .populate("sprintId", "sprintname")
       .populate("userId", "name")
       .populate('assignees', 'name')
+      .populate('report', 'name')
 
     // Filter out tasks that do not have associated projectId or sprintId
     const tasksWithoutProjectOrSprint = allTask.filter(task => !task.projectId && !task.sprintId);
@@ -295,4 +297,4 @@ const GetCreatedTask = async (req, res) => {
   res.status(200).json({ message: "Task found", success: true, data: getTask })
 
 }
-export { createTask, showAllTasks, updateTaskById, deleteTaskById, GetCreatedTask, GetassignedTask,};
+export { createTask, showAllTasks, updateTaskById, deleteTaskById, GetCreatedTask, GetassignedTask, };
