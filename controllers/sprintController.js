@@ -54,35 +54,35 @@ const createSprint = async (req, res) => {
 
         await newSprint.save();
 
-        if (!Array.isArray(isProject.sprintId)) {
-            isProject.sprintId = [];
-        }
-        isProject.sprintId.push(newSprint._id);
-        await isProject.save();
+        // if (!Array.isArray(isProject.sprintId)) {
+        //     isProject.sprintId = [];
+        // }
+        // isProject.sprintId.push(newSprint._id);
+        // await isProject.save();
 
-        // Get the array of team members (flattening if there are multiple teams)
-        const teamMembers = isProject.teams.flatMap(team => team.members);
+        // // Get the array of team members (flattening if there are multiple teams)
+        // const teamMembers = isProject.teams.flatMap(team => team.members);
 
-        // Send notification to each team member via their socket or save it if they are offline
-        const teamSocketIds = sprintNotify(teamMembers);
+        // // Send notification to each team member via their socket or save it if they are offline
+        // const teamSocketIds = sprintNotify(teamMembers);
 
-        for (const member of teamMembers) {
-            const socketId = teamSocketIds[member._id];
+        // for (const member of teamMembers) {
+        //     const socketId = teamSocketIds[member._id];
 
-            const message = `A new sprint "${sprintname}" has been created in the project "${isProject.projectName}".`;
+        //     const message = `A new sprint "${sprintname}" has been created in the project "${isProject.projectName}".`;
 
-            // If the user is online, send the notification via their socket
-            if (socketId) {
-                io.to(socketId).emit('sprintCreated', {
-                    message,
-                    sprint: newSprint,
-                });
-                await sprintNotification(member._id, newSprint._id, message);
-            } else {
-                // If the user is offline, save the notification in the database
-                await sprintNotification(member._id, newSprint._id, message);
-            }
-        }
+        //     // If the user is online, send the notification via their socket
+        //     if (socketId) {
+        //         io.to(socketId).emit('sprintCreated', {
+        //             message,
+        //             sprint: newSprint,
+        //         });
+        //         await sprintNotification(member._id, newSprint._id, message);
+        //     } else {
+        //         // If the user is offline, save the notification in the database
+        //         await sprintNotification(member._id, newSprint._id, message);
+        //     }
+        // }
 
         // Return success response
         return res.status(201).json({ message: "Sprint created successfully", success: true, Data: newSprint });
