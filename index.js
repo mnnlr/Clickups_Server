@@ -32,6 +32,7 @@ import logOutRoute from './routes/userRoutes.js';
 import IndividualTaskRoute from './routes/IndividualRoute.js';
 import workspceRouter from './routes/workspaceRoutes.js';
 import documentRouter from './routes/documentRoutes.js';
+import uploadCloudinary from './routes/uploadCloudinry.js';
 
 app.use(refreshTokenRoute);
 
@@ -48,6 +49,8 @@ app.use('/api/project/individualTask', IndividualTaskRoute);
 app.use('/api/workspaces', workspceRouter);
 app.use('/api/workspace/documents', documentRouter);
 app.use('/api', logOutRoute);
+
+app.use('/api/api/upload_cloudinary', uploadCloudinary);
 
 
 
