@@ -70,16 +70,14 @@ const getAllPeojectById = async (req, res) => {
 const updateProject = async (req, res) => {
   try {
     const projectId = req.params.id;
-    const { projectName, description, status, owner, teams } = req.body;
+    const { projectName, description, status, owner } = req.body;
 
     // Update the project with the new data
     const updatedProject = await Project.findByIdAndUpdate(
       projectId,
-      { projectName, description, status, owner, teams },
+      { projectName, description, status, owner },
       { new: true, runValidators: true }
     );
-
-    console.log(teams)
 
     if (!updatedProject) {
       return res.status(404).json({ message: "Project Not Found", success: false });
@@ -179,11 +177,68 @@ const getProjectsBySprintId = async (req, res) => {
   }
 };
 
+const addMember = async (req, res) => {
+  try {
+    const { projectId } = req.params;  // Project ID from params
+    const { teams } = req.body;  // Teams object containing teamIDs and memberIDs
+    console.log("Teams received in the request:", req.body);
+
+    // Find the project
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found", success: false });
+    }
+
+    const { teamIDs, memberIDs } = teams;
+
+    // Ensure that teamIDs and memberIDs exist and are arrays
+    if (!Array.isArray(teamIDs) || !Array.isArray(memberIDs)) {
+      return res.status(400).json({ message: "teamIDs and memberIDs should be arrays", success: false });
+    }
+
+    // If no teams are present, initialize them with the given teamIDs and memberIDs
+    if (project.teams.teamIDs.length === 0) {
+      project.teams.teamIDs = teamIDs;  // Initialize teamIDs with provided IDs
+      project.teams.memberIDs = memberIDs;  // Initialize memberIDs with provided IDs
+    } else {
+      // Loop through the teamIDs and update each corresponding team in the project
+      for (let teamId of teamIDs) {
+        // Find the team by teamID
+        const team = project.teams.teamIDs.find(t => t.equals(teamId));
+
+        // If the team exists, add members to it
+        if (team) {
+          for (let memberId of memberIDs) {
+            // Check if the member is already in the team
+            if (!project.teams.memberIDs.some(id => id.equals(memberId))) {
+              project.teams.memberIDs.push(memberId); // Add member to memberIDs
+            }
+          }
+        }
+      }
+    }
+    await project.save();
+
+    const updatedProject = await Project.findById(projectId)
+      .populate('teams.teamIDs')
+      .populate('teams.memberIDs');
+
+    return res.status(200).json({
+      message: "Members added to team(s) successfully",
+      success: true,
+      project: updatedProject,
+    });
+
+  } catch (error) {
+    console.error("Error adding members to team(s): ", error.message);
+    return res.status(500).json({ message: error.message, success: false });
+  }
+};
 
 export {
   CreateProject,
   getAllProject,
   getAllPeojectById,
   updateProject,
-  deleteProject, getProjectsBySprintId,
+  deleteProject, getProjectsBySprintId, addMember
 };
