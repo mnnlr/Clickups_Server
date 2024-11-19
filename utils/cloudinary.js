@@ -6,15 +6,14 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // Configure Cloudinary
-cloudinary.v2.config({
-  cloud_name: "dg56sdt6k", //'your_cloud_name',
-  api_key: "688781267938525", //'your_api_key',
-  api_secret: "v3ChT2nD-GN9F0j-9_Xasnusruw", //'your_api_secret'
-});
 
-console.log(cloudinary.config());
 
 const uploadDocuments = async (fileBuffer) => {
+  cloudinary.v2.config({
+    cloud_name: process.env.CLOUD_NAME, //'your_cloud_name',
+    api_key: process.env.API_KEY, //'your_api_key',
+    api_secret: process.env.API_SECRET_KEY, //'your_api_secret'
+  });
   console.log("this is file from cloudinary", fileBuffer);
   const options = {
     use_filename: true,
