@@ -29,11 +29,15 @@ export const handleCreateWorkspace = async (req, res) => {
     if (!workspaceName || !workspaceCreatedBy) return sendErrorResponse(res, 400, "Workspace name or created by is not provided.");
 
     try {
-        const createWorkspace = await Workspace.create({ workspaceName, workspaceCreatedBy }).populate("workspaceDocuments workspaceMembers workspaceCreatedBy");;
+        const createWorkspace = await Workspace.create({ workspaceName, workspaceCreatedBy });
 
-        if (!createWorkspace) return sendErrorResponse(res, 500, "Error while creating workspace (controller: handleCreateWorkspce).");
+        const populatedWorkspace = await Workspace.findById(createWorkspace._id)
+            .populate("workspaceDocuments workspaceMembers workspaceCreatedBy");
 
-        return sendSuccessResponse(res, 201, "Workspace created successfully in database.", createWorkspace);
+        if (!populatedWorkspace) return sendErrorResponse(res, 500, "Error while creating workspace (controller: handleCreateWorkspce).");
+
+        return sendSuccessResponse(res, 201, "Workspace created successfully in database.", populatedWorkspace);
+
     } catch (err) {
         return sendErrorResponse(res, 500, "Error in server while creating workspace (controller: handleCreateWorkspce).", err);
     }

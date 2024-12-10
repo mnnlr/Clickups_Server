@@ -4,17 +4,6 @@ import connectDB from './database/connectDB.js'
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 
-dotenv.config({ path: './config/.env' });
-
-app.use(cors({
-    origin: ["http://localhost:5173", process.env.CLIENT_URI],
-    credentials: true,
-}));
-
-
-app.use(cookieParser());
-app.use(express.json());
-
 // -------------------import Routes-------------------------------
 
 import taskRoutes from './routes/taskRoutes.js';
@@ -33,6 +22,16 @@ import IndividualTaskRoute from './routes/IndividualRoute.js';
 import workspceRouter from './routes/workspaceRoutes.js';
 import documentRouter from './routes/documentRoutes.js';
 import uploadCloudinary from './routes/uploadCloudinry.js';
+
+dotenv.config({ path: './config/.env' });
+
+app.use(cors({
+    origin: ["http://localhost:5173", process.env.CLIENT_URI],
+    credentials: true,
+}));
+
+app.use(cookieParser());
+app.use(express.json());
 
 app.use(refreshTokenRoute);
 

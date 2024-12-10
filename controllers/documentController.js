@@ -4,7 +4,7 @@ import { sendSuccessResponse, sendErrorResponse } from "./responseHelpers.js";
 
 export const createDocument = async (req, res) => {
     try {
-        const { documentTitle, createdBy, workspaceId } = req.body;
+        const { documentTitle, createdBy, workspaceId, permissions } = req.body;
 
 
         if (!documentTitle || !createdBy || !workspaceId) {
@@ -14,7 +14,7 @@ export const createDocument = async (req, res) => {
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return sendErrorResponse(res, 404, `Workspace with id: ${workspaceId} not found.`);
 
-        const newDocument = new Document({ documentTitle, createdBy });
+        const newDocument = new Document({ documentTitle, createdBy, permissions });
         await newDocument.save();
 
         const populatedDoc = await Document.findById(newDocument._id).populate("createdBy")
@@ -69,6 +69,7 @@ export const deleteDocument = async (req, res) => {
     try {
         const { id } = req.params;
         const { workspaceId } = req.body;
+        console.log("id: ", id, "workspaceId: ", workspaceId);
         if (!id || !workspaceId) return sendErrorResponse(res, 404, "Document id or workspace id didn't provided.");
 
         const document = await Document.findById(id);

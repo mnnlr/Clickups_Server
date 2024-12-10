@@ -5,17 +5,29 @@ const documentSchema = new mongoose.Schema({
         type: String,
         require: true
     },
-    documentContent: {
+    documentContent_cloudinaryURL: {
         type: String
     },
-    createdBy: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'User'
+    // For all the members.
+    permissions: {
+        canEdit: {
+            type: Boolean,
+            default: false
+        },
+        canView: {
+            type: Boolean,
+            default: true
+        }
     },
     contributors: [{
         type: mongoose.Schema.ObjectId,
         ref: 'User'
-    }]
+    }],
+    createdBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+        required: true
+    },
 }, { timestamps: true });
 
 const Document = mongoose.model("Document", documentSchema);
