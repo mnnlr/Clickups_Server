@@ -6,7 +6,7 @@ import { TaskAssigned, getReporterSocketId, io } from "../Socket/Socket.js";
 import { saveOfflineNotification } from "./notificationController.js";
 
 const createTask = async (req, res) => {
-  const { userId, taskName, description, assignees, report } = req.body;
+  const { userId, taskName, description, assignees,status, report } = req.body;
   const { projectId, sprintId } = req.params;
   if (description) {
     console.log("this is description------------------------>" + description)
@@ -36,6 +36,7 @@ const createTask = async (req, res) => {
       userId,
       kanId,
       projectId: projectId || undefined,
+      status:status || 'ToDo',
       sprintId: sprintId || undefined,
       taskName,
       description,

@@ -4,7 +4,7 @@ import Projects from '../models/Project.js'
 // Create an individual task
 const individualTaskCreate = async (req, res) => {
     try {
-        const { taskName, description, assignees, report, userId } = req.body;
+        const { taskName, description, assignees,status, report, userId } = req.body;
         const { projectId } = req.params;
 
         // Log task details
@@ -37,6 +37,7 @@ const individualTaskCreate = async (req, res) => {
             kanId,
             taskName,
             description,
+            status:status || 'ToDo',
             dueDate,
             assignees: assignees || undefined,
             report: report || undefined,
