@@ -19,6 +19,11 @@ const documentSchema = new mongoose.Schema({
             default: true
         }
     },
+    workspaceId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Workspace',
+        required: true
+    },
     contributors: [{
         type: mongoose.Schema.ObjectId,
         ref: 'User'

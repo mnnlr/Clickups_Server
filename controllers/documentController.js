@@ -14,7 +14,7 @@ export const createDocument = async (req, res) => {
         const workspace = await Workspace.findById(workspaceId);
         if (!workspace) return sendErrorResponse(res, 404, `Workspace with id: ${workspaceId} not found.`);
 
-        const newDocument = new Document({ documentTitle, createdBy, permissions });
+        const newDocument = new Document({ documentTitle, createdBy, permissions, workspaceId });
         await newDocument.save();
 
         const populatedDoc = await Document.findById(newDocument._id).populate("createdBy")
