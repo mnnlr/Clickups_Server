@@ -68,8 +68,8 @@ export const updateDocument = async (req, res) => {
 export const deleteDocument = async (req, res) => {
     try {
         const { id } = req.params;
-        const { workspaceId } = req.body;
-        console.log("id: ", id, "workspaceId: ", workspaceId);
+        const { workspaceId } = req.query;
+        // console.log("id: ", id, "workspaceId: ", workspaceId);
         if (!id || !workspaceId) return sendErrorResponse(res, 404, "Document id or workspace id didn't provided.");
 
         const document = await Document.findById(id);
