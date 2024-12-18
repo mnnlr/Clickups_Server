@@ -22,6 +22,7 @@ import IndividualTaskRoute from './routes/IndividualRoute.js';
 import workspceRouter from './routes/workspaceRoutes.js';
 import documentRouter from './routes/documentRoutes.js';
 import uploadCloudinary from './routes/uploadCloudinry.js';
+import cloudinaryRouter from './routes/cloudinaryRouter.js';
 
 dotenv.config({ path: './config/.env' });
 
@@ -49,6 +50,7 @@ app.use('/api/dashboards', dashboardRoute);
 app.use('/api/project/individualTask', IndividualTaskRoute);
 app.use('/api/workspaces', workspceRouter);
 app.use('/api/workspace/documents', documentRouter);
+app.use("/api/cloudData", cloudinaryRouter);
 app.use('/api', logOutRoute);
 
 app.use('/api/api/upload_cloudinary', uploadCloudinary);

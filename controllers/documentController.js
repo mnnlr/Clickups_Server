@@ -68,12 +68,15 @@ export const updateDocument = async (req, res) => {
 export const deleteDocument = async (req, res) => {
     try {
         const { id } = req.params;
-        const { workspaceId } = req.query;
-        // console.log("id: ", id, "workspaceId: ", workspaceId);
-        if (!id || !workspaceId) return sendErrorResponse(res, 404, "Document id or workspace id didn't provided.");
+
+        console.log("id: ", id);
+        if (!id) return sendErrorResponse(res, 404, "Document id didn't provided.");
 
         const document = await Document.findById(id);
         if (!document) return sendErrorResponse(res, 404, `Document with id: ${id} not found.`);
+
+        const workspaceId = document.workspaceId;
+        console.log("workspaceid: ", workspaceId);
 
         await Workspace.findByIdAndUpdate(workspaceId, {
             $pull: { workspaceDocuments: id }
@@ -81,7 +84,7 @@ export const deleteDocument = async (req, res) => {
 
         await Document.findByIdAndDelete(id);
 
-        sendSuccessResponse(res, 200, `Document with id: ${workspaceId} deleted successfully`);
+        sendSuccessResponse(res, 200, `Document with id: ${id} deleted successfully`);
     } catch (error) {
         sendErrorResponse(res, 500, "Error deleting document", error.message);
     }
