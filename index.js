@@ -21,7 +21,8 @@ import logOutRoute from './routes/userRoutes.js';
 import IndividualTaskRoute from './routes/IndividualRoute.js';
 import workspceRouter from './routes/workspaceRoutes.js';
 import documentRouter from './routes/documentRoutes.js';
-import uploadCloudinary from './routes/uploadCloudinry.js';
+// import uploadCloudinary from './routes/uploadCloudinry.js';
+import cloudinaryRouter from './routes/cloudinaryRouter.js';
 
 dotenv.config({ path: './config/.env' });
 
@@ -30,6 +31,7 @@ app.use(cors({
     credentials: true,
 }));
 
+// -------------------------middlewares-----------------------
 app.use(cookieParser());
 // payload size limit
 app.use(express.json({ limit: '500kb' })); // Increase payload limit
@@ -37,6 +39,7 @@ app.use(express.urlencoded({ extended: true, limit: '500kb' })); // For URL-enco
 app.use(express.json());
 app.use(refreshTokenRoute);
 
+// --------------------api routes-----------------------------
 app.use("/api/tasks", taskRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/sprints", sprintRoutes);
@@ -49,9 +52,9 @@ app.use('/api/dashboards', dashboardRoute);
 app.use('/api/project/individualTask', IndividualTaskRoute);
 app.use('/api/workspaces', workspceRouter);
 app.use('/api/workspace/documents', documentRouter);
+app.use("/api/cloudData", cloudinaryRouter);
 app.use('/api', logOutRoute);
-
-app.use('/api/api/upload_cloudinary', uploadCloudinary);
+// app.use('/api/api/upload_cloudinary', uploadCloudinary);
 
 
 

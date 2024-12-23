@@ -23,7 +23,7 @@ const CreateProject = async (req, res) => {
 
     // Save the project to the database
     const saveProject = await newProject.save();
-    return res.status(201).json({ message: "Project created successfully", succcess: true });
+    return res.status(201).json({ message: "Project created successfully", succcess: true, data: saveProject });
   } catch (error) {
     // Handle server errors
     return res.status(500).json({ message: error.message, success: false });
