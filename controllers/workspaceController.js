@@ -72,92 +72,136 @@ export const handleDeleteWorkspace = async (req, res) => {
         return sendErrorResponse(res, 500, "Error in server while deleting workspace (controller: handleDeleteWorkspace).", err);
     }
 }
-export const addMemberToWorkspace = async (req, res) => {
-    const { workspaceId } = req.params;
-    const { memberId } = req.body;
+// export const addMemberToWorkspace = async (req, res) => {
+//     const { workspaceId } = req.params;
+//     const { memberId } = req.body;
 
-    // console.log(req.params);
-    // console.log(req.body);
+//     // console.log(req.params);
+//     // console.log(req.body);
 
 
-    const membersToAdd = Array.isArray(memberId) ? memberId : [memberId];
+//     const membersToAdd = Array.isArray(memberId) ? memberId : [memberId];
 
-    // // Validate if memberId or membersToAdd is empty
-    // if (!membersToAdd || membersToAdd.length === 0) {
-    //     return sendErrorResponse(res, 400, "No member IDs provided.");
-    // }
+//     // // Validate if memberId or membersToAdd is empty
+//     // if (!membersToAdd || membersToAdd.length === 0) {
+//     //     return sendErrorResponse(res, 400, "No member IDs provided.");
+//     // }
 
-    const uniqueMembers = new Set(membersToAdd);
-    if (uniqueMembers.size !== membersToAdd.length) {
-        return sendErrorResponse(res, 400, "Duplicate member IDs found.");
+//     const uniqueMembers = new Set(membersToAdd);
+//     if (uniqueMembers.size !== membersToAdd.length) {
+//         return sendErrorResponse(res, 400, "Duplicate member IDs found.");
+//     }
+
+//     try {
+//         const workspace = await Workspace.findById(workspaceId);
+//         if (!workspace) {
+//             return sendErrorResponse(res, 404, `Workspace with ID ${workspaceId} does not exist.`);
+//         }
+
+//         for (let memberId of membersToAdd) {
+//             const member = await UserModel.findById(memberId);
+//             if (!member) {
+//                 return sendErrorResponse(res, 400, `User with ID ${memberId} does not exist in the database.`);
+//             }
+
+//             if (workspace.workspaceMembers.includes(memberId)) {
+//                 return sendErrorResponse(res, 400, `User with ID ${memberId} is already a member of the workspace.`);
+//             }
+//         }
+//         workspace.workspaceMembers = [...new Set([...workspace.workspaceMembers, ...membersToAdd])];
+
+
+//         await workspace.save();
+//         const updatedWorkspace = await Workspace.findById(workspaceId)
+//             .populate("workspaceDocuments workspaceMembers workspaceCreatedBy");
+
+//         return sendSuccessResponse(res, 200, "Members added successfully to workspace.", updatedWorkspace);
+//     } catch (err) {
+//         return sendErrorResponse(res, 500, "Error in server while adding member to workspace.", err.message || err);
+//     }
+// };
+
+// export const removeMemberFromWorkspace = async (req, res) => {
+//     const { workspaceId } = req.params;
+//     const { memberId } = req.body;
+
+//     // if (!workspaceId) {
+//     //     return sendErrorResponse(res, 400, "Workspace ID is not provided.");
+//     // }
+
+//     try {
+
+//         const member = await UserModel.findById(memberId);
+//         if (!member) {
+//             return sendErrorResponse(res, 404, `User with ID ${memberId} does not exist in the database.`);
+//         }
+
+
+//         const workspace = await Workspace.findById(workspaceId);
+//         if (!workspace) {
+//             return sendErrorResponse(res, 404, `Workspace with ID ${workspaceId} does not exist.`);
+//         }
+
+
+//         const memberIndex = workspace.workspaceMembers.indexOf(memberId);
+//         if (memberIndex === -1) {
+//             return sendErrorResponse(res, 400, `User with ID ${memberId} is not a member of the workspace.`);
+//         }
+
+
+//         workspace.workspaceMembers.splice(memberIndex, 1);
+//         await workspace.save();
+
+
+//         const updatedWorkspace = await Workspace.findById(workspaceId)
+//             .populate("workspaceDocuments workspaceMembers workspaceCreatedBy");
+
+//         return sendSuccessResponse(res, 200, "Member removed successfully from workspace.", updatedWorkspace);
+//     } catch (err) {
+//         return sendErrorResponse(res, 500, "Error in server while removing member from workspace.", err);
+//     }
+// };
+
+
+export const addMember = async (req, res) => {
+  try {
+    const { workspaceId } = req.params;  
+    const { members } = req.body;  
+    console.log("Members received in the request:", req.body);
+
+    // Find the workspace
+    const workspace = await Workspace.findById(workspaceId);
+    if (!workspace) {
+      return res.status(404).json({ message: "Workspace not found", success: false });
     }
 
-    try {
-        const workspace = await Workspace.findById(workspaceId);
-        if (!workspace) {
-            return sendErrorResponse(res, 404, `Workspace with ID ${workspaceId} does not exist.`);
-        }
 
-        for (let memberId of membersToAdd) {
-            const member = await UserModel.findById(memberId);
-            if (!member) {
-                return sendErrorResponse(res, 400, `User with ID ${memberId} does not exist in the database.`);
-            }
-
-            if (workspace.workspaceMembers.includes(memberId)) {
-                return sendErrorResponse(res, 400, `User with ID ${memberId} is already a member of the workspace.`);
-            }
-        }
-        workspace.workspaceMembers = [...new Set([...workspace.workspaceMembers, ...membersToAdd])];
-
-
-        await workspace.save();
-        const updatedWorkspace = await Workspace.findById(workspaceId)
-            .populate("workspaceDocuments workspaceMembers workspaceCreatedBy");
-
-        return sendSuccessResponse(res, 200, "Members added successfully to workspace.", updatedWorkspace);
-    } catch (err) {
-        return sendErrorResponse(res, 500, "Error in server while adding member to workspace.", err.message || err);
+    if (!Array.isArray(members)) {
+      return res.status(400).json({ message: "Members should be an array of user IDs", success: false });
     }
+
+    for (let memberId of members) {
+      
+      if (!workspace.workspaceMembers.some(id => id.equals(memberId))) {
+        workspace.workspaceMembers.push(memberId);  
+      }
+    }
+
+
+    await workspace.save();
+
+
+    const updatedWorkspace = await Workspace.findById(workspaceId)
+      .populate('workspaceMembers'); 
+    return res.status(200).json({
+      message: "Members added to workspace successfully",
+      success: true,
+      workspace: updatedWorkspace,
+    });
+
+  } catch (error) {
+    console.error("Error adding members to workspace: ", error.message);
+    return res.status(500).json({ message: error.message, success: false });
+  }
 };
 
-export const removeMemberFromWorkspace = async (req, res) => {
-    const { workspaceId } = req.params;
-    const { memberId } = req.body;
-
-    // if (!workspaceId) {
-    //     return sendErrorResponse(res, 400, "Workspace ID is not provided.");
-    // }
-
-    try {
-
-        const member = await UserModel.findById(memberId);
-        if (!member) {
-            return sendErrorResponse(res, 404, `User with ID ${memberId} does not exist in the database.`);
-        }
-
-
-        const workspace = await Workspace.findById(workspaceId);
-        if (!workspace) {
-            return sendErrorResponse(res, 404, `Workspace with ID ${workspaceId} does not exist.`);
-        }
-
-
-        const memberIndex = workspace.workspaceMembers.indexOf(memberId);
-        if (memberIndex === -1) {
-            return sendErrorResponse(res, 400, `User with ID ${memberId} is not a member of the workspace.`);
-        }
-
-
-        workspace.workspaceMembers.splice(memberIndex, 1);
-        await workspace.save();
-
-
-        const updatedWorkspace = await Workspace.findById(workspaceId)
-            .populate("workspaceDocuments workspaceMembers workspaceCreatedBy");
-
-        return sendSuccessResponse(res, 200, "Member removed successfully from workspace.", updatedWorkspace);
-    } catch (err) {
-        return sendErrorResponse(res, 500, "Error in server while removing member from workspace.", err);
-    }
-};
