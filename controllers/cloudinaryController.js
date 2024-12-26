@@ -1,13 +1,16 @@
 import { v2 as cloudinary } from "cloudinary";
 import streamifier from "streamifier"; // Convert Buffer to Stream
 import Document from "../models/Document.js";
+import { sendErrorResponse, sendSuccessResponse } from "./responseHelpers.js";
 
 // upload data to cloudinary
 export const uploadDataToCloudinary = async (req, res) => {
     const { data, documentId } = req.body;
 
-    if (!data) return res.status(400).json({ message: "No data in request." });
-    if (!documentId) return res.status(400).json({ message: "No document id in request." });
+    if (!data) return sendErrorResponse(res, 400, "No data in request.");
+    if (!documentId) return sendErrorResponse(res, 400, "No document id in request.");
+
+    const doc = await Document.findById(documentId);
 
     // console.log("data: ", data);
 
@@ -19,33 +22,43 @@ export const uploadDataToCloudinary = async (req, res) => {
     });
 
     try {
+        // Generate a unique public_id using the document ID or a timestamp
+        const uniquePublicId = doc
+            ? doc.documentContent_cloudinaryPublicId // Use stored public_id
+            : `tinymce_editor_content_${documentId}`; // Generate new public_id for new documents
+
         // Create an upload stream
         const uploadStream = cloudinary.uploader.upload_stream(
             {
                 resource_type: "raw", // Non-media content
-                public_id: "tinymce_editor_content", // Optional custom public ID
+                public_id: uniquePublicId, // Consistent public_id for editing
             },
             async (error, result) => {
                 if (error) {
                     console.error("Cloudinary Upload Error: ", error);
-                    return res.status(500).json({ message: "File didn't upload", error });
+                    return sendErrorResponse(res, 500, "File didn't upload", error);
                 }
                 if (result) {
                     const updatedDocument = await Document.findByIdAndUpdate(
                         documentId,
-                        { $set: { documentContent_cloudinaryURL: result.secure_url } },
+                        {
+                            $set: {
+                                documentContent_cloudinaryURL: result.secure_url,
+                                documentContent_cloudinaryPublicId: result.public_id, // Corrected field name
+                            },
+                        },
                         { new: true }
                     );
                     console.log("Cloudinary Upload Result: ", result);
-                    if (updatedDocument) return res.status(200).json({ message: "Content uploaded successfully", data: updatedDocument });
+                    if (updatedDocument) return sendSuccessResponse(res, 200, "Content uploaded successfully", updatedDocument);
                 }
             }
         );
         // Pipe the string content to the upload stream
         streamifier.createReadStream(data).pipe(uploadStream);
     } catch (err) {
-        console.error("err: ", err)
-        return res.status(500).json({ message: "File did't uploaded", err });
+        console.error("err: ", err);
+        return sendErrorResponse(res, 500, "File didn't upload", err);
     }
 }
 
@@ -53,26 +66,26 @@ export const uploadDataToCloudinary = async (req, res) => {
 export const getDataFromCloudinary = async (req, res) => {
     const { documentId } = req.query;
     console.log("docId", documentId)
-    if (!documentId) return res.status(400).json({ success: false, message: "No document id in request." });
+    if (!documentId) return sendErrorResponse(res, 400, "No document id in request.");
 
     const document = await Document.findById(documentId);
-    if (!document) return res.status(400).json({ success: false, message: "Document not found." });
+    if (!document) return sendErrorResponse(res, 400, "Document not found.");
 
     const cloudURL = document.documentContent_cloudinaryURL;
-    if (!cloudURL) return res.status(299).json({ success: false, message: "Cloudinary URL is not found." });
+    if (!cloudURL) return sendErrorResponse(res, 299, "Cloudinary URL is not found.");
 
     const cloudRes = await fetch(cloudURL)
-    if (!cloudRes) return res.status(299).json({ success: false, message: "Cloudinary URL is not valid or does not exist." });
+    if (!cloudRes) return sendErrorResponse(res, 299, "Cloudinary URL is not valid or does not exist.");
 
     // file data to text
     const cloudData = await cloudRes.text();
-    return res.status(200).json({ success: true, message: "Data fetched successfully", data: cloudData });
+    return sendSuccessResponse(res, 200, "Data fetched successfully", cloudData);
 }
 
 export const deleteDataFromCloudinary = async (req, res, next) => {
     const { documentId } = req.params;
 
-    if (!documentId) return res.status(400).json({ message: "No document id in request." });
+    if (!documentId) return sendErrorResponse(res, 400, "No document id in request.");
 
     // Configure Cloudinary
     cloudinary.config({
@@ -84,10 +97,10 @@ export const deleteDataFromCloudinary = async (req, res, next) => {
     try {
         // Fetch the document to get the Cloudinary public_id
         const doc = await Document.findById(documentId);
-        if (!doc) return res.status(400).json({ message: "Document not found." });
+        if (!doc) return sendErrorResponse(res, 400, "Document not found.");
 
         const cloudURL = doc.documentContent_cloudinaryURL;
-        if (!cloudURL) return res.status(400).json({ message: "Cloudinary URL is not found." });
+        if (!cloudURL) return sendSuccessResponse(res, 200, "Cloudinary URL is not present.");
 
         // Extract the public_id from the Cloudinary URL
         const publicId = doc.documentContent_cloudinaryURL.split('/').pop().split('.')[0];
@@ -97,22 +110,22 @@ export const deleteDataFromCloudinary = async (req, res, next) => {
             async (err, result) => {
                 if (err) {
                     console.error("Cloudinary Upload Error: ", err);
-                    return res.status(500).json({ error: "Something went wrong.", err });
+                    return sendErrorResponse(res, 500, "Something went wrong.", err);
                 }
                 // console.log("Cloudinary Upload Result: ", result);
                 if (result.result === "ok") {
                     const updatedDocument = await Document.findByIdAndUpdate(documentId, { $unset: { documentContent_cloudinaryURL: "" } }, { new: true });
-                    if (!updatedDocument) return res.status(400).json({ message: "Error while updating the document." });
+                    if (!updatedDocument) return sendErrorResponse(res, 400, "Error while updating the document.");
 
-                    return res.status(200).json({ message: "Content deleted successfully", data: updatedDocument });
+                    return sendSuccessResponse(res, 200, "Content deleted successfully", updatedDocument);
                 } else {
                     console.log("Cloudinary Upload Result: ", result);
-                    return res.status(500).json({ message: "Fail to delete content on cludinary." });
+                    return sendErrorResponse(res, 500, "Fail to delete content on Cloudinary.");
                 }
             }
         )
     } catch (err) {
-        console.error("err: ", err)
-        return res.status(500).json({ message: "File did't uploaded", err });
+        console.error("err: ", err);
+        return sendErrorResponse(res, 500, "File didn't upload", err);
     }
 }
