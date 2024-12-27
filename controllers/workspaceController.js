@@ -166,41 +166,46 @@ export const handleDeleteWorkspace = async (req, res) => {
 export const addMember = async (req, res) => {
   try {
     const { workspaceId } = req.params;  
-    const { members } = req.body;  
-    console.log("Members received in the request:", req.body);
+    const { members, action } = req.body;
 
-    // Find the workspace
+    if (!['add', 'remove'].includes(action)) {
+      return res.status(400).json({ message: "Action must be 'add' or 'remove'", success: false });
+    }
+
     const workspace = await Workspace.findById(workspaceId);
     if (!workspace) {
       return res.status(404).json({ message: "Workspace not found", success: false });
     }
 
-
     if (!Array.isArray(members)) {
       return res.status(400).json({ message: "Members should be an array of user IDs", success: false });
     }
 
-    for (let memberId of members) {
-      
-      if (!workspace.workspaceMembers.some(id => id.equals(memberId))) {
-        workspace.workspaceMembers.push(memberId);  
+    if (action === 'add') {
+      for (let memberId of members) {
+        if (!workspace.workspaceMembers.some(id => id.equals(memberId))) {
+          workspace.workspaceMembers.push(memberId);
+        }
+      }
+    } else if (action === 'remove') {
+      for (let memberId of members) {
+        workspace.workspaceMembers = workspace.workspaceMembers.filter(id => !id.equals(memberId));
       }
     }
 
-
     await workspace.save();
 
-
     const updatedWorkspace = await Workspace.findById(workspaceId)
-      .populate('workspaceMembers'); 
+      .populate('workspaceMembers');
+
     return res.status(200).json({
-      message: "Members added to workspace successfully",
+      message: `Members ${action === 'add' ? 'added to' : 'removed from'} workspace successfully`,
       success: true,
       workspace: updatedWorkspace,
     });
 
   } catch (error) {
-    console.error("Error adding members to workspace: ", error.message);
+    console.error("Error updating members in workspace: ", error.message);
     return res.status(500).json({ message: error.message, success: false });
   }
 };
