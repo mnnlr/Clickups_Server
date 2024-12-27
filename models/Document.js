@@ -8,6 +8,9 @@ const documentSchema = new mongoose.Schema({
     documentContent_cloudinaryURL: {
         type: String
     },
+    documentContent_cloudinaryPublicId: {
+        type: String
+    },
     // For all the members.
     permissions: {
         canEdit: {
