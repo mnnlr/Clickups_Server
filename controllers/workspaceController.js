@@ -12,6 +12,35 @@ export const getAllWorkspace = async (req, res) => {
     }
 }
 
+export const getAllUserWorkspaces=async(req,res)=>{
+    try {
+        // Extract the user ID from request parameters
+        const { id } = req.params;
+        console.log("User ID:", id);
+    
+        // Query workspaces where the user ID is present anywhere relevant
+        const workspaceData = await Workspace.find({
+            $or: [
+                { workspaceMembers: { $in: [id] } }, // Check if user is in workspaceMembers
+                { workspaceCreatedBy: id }, // Check if user created the workspace
+            ],
+        }).populate("workspaceDocuments workspaceMembers workspaceCreatedBy");
+    
+        if (workspaceData.length > 0) {
+            return sendSuccessResponse(res, 200, "Data retrieved successfully.", workspaceData);
+        } else {
+            return sendSuccessResponse(res, 200, "No workspaces found for the given user ID.", []);
+        }
+    } catch (err) {
+        return sendErrorResponse(
+            res,
+            500,
+            "Error in server while getting workspace data (controller: getAllWorkspace).",
+            err
+        );
+    }
+}    
+
 export const getWorkspaceById = async (req, res) => {
     const { id } = req.params;
     if (!id) return sendErrorResponse(res, 404, "Id didn't provided.");
@@ -72,6 +101,8 @@ export const handleDeleteWorkspace = async (req, res) => {
         return sendErrorResponse(res, 500, "Error in server while deleting workspace (controller: handleDeleteWorkspace).", err);
     }
 }
+
+
 // export const addMemberToWorkspace = async (req, res) => {
 //     const { workspaceId } = req.params;
 //     const { memberId } = req.body;
@@ -167,7 +198,6 @@ export const addMember = async (req, res) => {
   try {
     const { workspaceId } = req.params;  
     const { members, action } = req.body;
-
     if (!['add', 'remove'].includes(action)) {
       return res.status(400).json({ message: "Action must be 'add' or 'remove'", success: false });
     }
@@ -210,3 +240,101 @@ export const addMember = async (req, res) => {
   }
 };
 
+// export const removeMemberFromWorkspace = async (req, res) => {
+//     const { workspaceId } = req.params;
+//     const { memberId } = req.body;
+
+//     // if (!workspaceId) {
+//     //     return sendErrorResponse(res, 400, "Workspace ID is not provided.");
+//     // }
+
+//     try {
+
+//         const member = await UserModel.findById(memberId);
+//         if (!member) {
+//             return sendErrorResponse(res, 404, `User with ID ${memberId} does not exist in the database.`);
+//         }
+
+
+//         const workspace = await Workspace.findById(workspaceId);
+//         if (!workspace) {
+//             return sendErrorResponse(res, 404, `Workspace with ID ${workspaceId} does not exist.`);
+//         }
+
+
+//         const memberIndex = workspace.workspaceMembers.indexOf(memberId);
+//         if (memberIndex === -1) {
+//             return sendErrorResponse(res, 400, `User with ID ${memberId} is not a member of the workspace.`);
+//         }
+
+
+//         workspace.workspaceMembers.splice(memberIndex, 1);
+//         await workspace.save();
+
+
+//         const updatedWorkspace = await Workspace.findById(workspaceId)
+//             .populate("workspaceDocuments workspaceMembers workspaceCreatedBy");
+
+//         return sendSuccessResponse(res, 200, "Member removed successfully from workspace.", updatedWorkspace);
+//     } catch (err) {
+//         return sendErrorResponse(res, 500, "Error in server while removing member from workspace.", err);
+//     }
+// };
+
+export const removeMemberFromWorkspace = async (req, res) => {
+    const { workspaceId } = req.params;
+    const { memberIds } = req.body; // Accept `memberIds` as an array
+
+    if (!workspaceId) {
+        return sendErrorResponse(res, 400, "Workspace ID is not provided.");
+    }
+
+    if (!Array.isArray(memberIds) || memberIds.length === 0) {
+        return sendErrorResponse(res, 400, "Member IDs must be a non-empty array.");
+    }
+
+    try {
+        const workspace = await Workspace.findById(workspaceId);
+
+        if (!workspace) {
+            return sendErrorResponse(res, 404, `Workspace with ID ${workspaceId} does not exist.`);
+        }
+
+        // Filter out members that are not in the workspace
+        const membersNotInWorkspace = memberIds.filter(
+            (id) => !workspace.workspaceMembers.includes(id)
+        );
+
+        if (membersNotInWorkspace.length > 0) {
+            return sendErrorResponse(
+                res,
+                400,
+                `Some members are not part of the workspace: ${membersNotInWorkspace.join(", ")}.`
+            );
+        }
+
+        // Remove the members
+        workspace.workspaceMembers = workspace.workspaceMembers.filter(
+            (id) => !memberIds.includes(id)
+        );
+
+        await workspace.save();
+
+        const updatedWorkspace = await Workspace.findById(workspaceId)
+            .populate("workspaceDocuments workspaceMembers workspaceCreatedBy");
+
+        return sendSuccessResponse(
+            res,
+            200,
+            "Members removed successfully from workspace.",
+            updatedWorkspace
+        );
+    } catch (err) {
+        return sendErrorResponse(
+            res,
+            500,
+            "Error in server while removing members from workspace.",
+            err
+        );
+    }
+};
