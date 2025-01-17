@@ -12,16 +12,30 @@ const documentSchema = new mongoose.Schema({
         type: String
     },
     // For all the members.
-    permissions: {
+    // permissions: {
+    //     canEdit: {
+    //         type: Boolean,
+    //         default: false
+    //     },
+    //     canView: {
+    //         type: Boolean,
+    //         default: true
+    //     }
+    // },
+    permissions: [{
+        user: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'User',
+        },
         canEdit: {
             type: Boolean,
-            default: false
+            default: false,
         },
         canView: {
             type: Boolean,
-            default: true
-        }
-    },
+            default: true,
+        },
+    }],
     workspaceId: {
         type: mongoose.Schema.ObjectId,
         ref: 'Workspace',
