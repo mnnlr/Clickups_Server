@@ -166,6 +166,42 @@ const getTasksByProjectId = async (req, res) => {
         });
     }
 };
+    
+    const GetIndividualTasksById=async(req,res)=>{
+        try{        
+        const {id}=req.params;
 
+        if(!id){
+            return res.status(401).json({success:false ,message:"User Id Is Not Present"})
+        }
 
-export { individualTaskCreate, individualTaskUpdate, individualTaskDelete, getTasksByProjectId };
+        const UserIndividualTasks=await IndividualTask.find({assignees:id})
+        .populate("userId","name")
+        .populate("assignees","name");
+        return res.status(200).json({success:true, message:"tasks Find Successfully",data:UserIndividualTasks})
+        }catch(error){
+            console.log(error)
+        }
+    }
+
+    const GetIndividualCreatedTaskById=async(req,res)=>{
+        try{
+                const {userId}=req.params;
+
+                if(!userId){
+                    return res.status(401).json({success:false,message:"User Id Not Provided"});
+                }
+
+                const CreatedIndividualtasks=await IndividualTask.find({userId})
+                .populate("userId","name")
+                .populate("assignees","name")
+
+                return res.status(200).json({success:true,messaage:"tasks fetch Successfully",data:CreatedIndividualtasks})
+
+            }catch(error){
+                console.log(error)
+            }
+        }
+    
+
+export { individualTaskCreate, individualTaskUpdate, individualTaskDelete, getTasksByProjectId,GetIndividualTasksById,GetIndividualCreatedTaskById };

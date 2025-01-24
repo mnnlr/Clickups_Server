@@ -278,7 +278,11 @@ const deleteTaskById = async (req, res) => {
 const GetassignedTask = async (req, res) => {
   const { assignees } = req.params;
 
-  const getAssignedTask = await Task.find({ assignees }).sort({ createdAt: -1 }).limit(4);
+  const getAssignedTask = await Task.find({ assignees })
+  .populate("userId","name")
+  .populate("assignees","name")
+  .populate("sprintId","sprintname")
+  .sort({ createdAt: -1 }).limit(4);
   //console.log(getAssignedTask);
 
   if (!getAssignedTask) {
@@ -290,7 +294,11 @@ const GetassignedTask = async (req, res) => {
 const GetCreatedTask = async (req, res) => {
   const { userId } = req.params;
 
-  const getTask = await Task.find({ userId }).sort({ createdAt: -1 }).limit(4);
+  const getTask = await Task.find({ userId })
+  .populate("userId","name")
+  .populate("assignees","name")
+  .populate("sprintId","sprintname")
+  .sort({ createdAt: -1 }).limit(4);
 
   if (!getTask) {
     return res.status(404).json({ message: "Task not found", success: false })
