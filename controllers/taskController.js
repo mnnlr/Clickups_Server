@@ -282,6 +282,8 @@ const GetassignedTask = async (req, res) => {
   .populate("userId","name")
   .populate("assignees","name")
   .populate("sprintId","sprintname")
+  .populate("projectId","projectName")
+
   .sort({ createdAt: -1 }).limit(4);
   //console.log(getAssignedTask);
 
@@ -298,6 +300,8 @@ const GetCreatedTask = async (req, res) => {
   .populate("userId","name")
   .populate("assignees","name")
   .populate("sprintId","sprintname")
+  .populate("projectId","projectName")
+
   .sort({ createdAt: -1 }).limit(4);
 
   if (!getTask) {

@@ -177,7 +177,8 @@ const getTasksByProjectId = async (req, res) => {
 
         const UserIndividualTasks=await IndividualTask.find({assignees:id})
         .populate("userId","name")
-        .populate("assignees","name");
+        .populate("assignees","name")
+        .populate("projectId","projectName")
         return res.status(200).json({success:true, message:"tasks Find Successfully",data:UserIndividualTasks})
         }catch(error){
             console.log(error)
@@ -195,6 +196,7 @@ const getTasksByProjectId = async (req, res) => {
                 const CreatedIndividualtasks=await IndividualTask.find({userId})
                 .populate("userId","name")
                 .populate("assignees","name")
+                .populate("projectId","projectName")
 
                 return res.status(200).json({success:true,messaage:"tasks fetch Successfully",data:CreatedIndividualtasks})
 
