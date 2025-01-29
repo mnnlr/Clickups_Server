@@ -1,3 +1,4 @@
+import IndividualTask from "../models/individualTask.js";
 import Project from "../models/Project.js";
 import Sprint from "../models/Sprint.js";
 import Task from "../models/Task.js";
@@ -149,6 +150,8 @@ const deleteProject = async (req, res) => {
 
     // Delete all associated tasks
     await Task.deleteMany({ _id: { $in: project.taskId } });
+    // Delete all individual tasks in project
+    await IndividualTask.deleteMany({ _id: { $in: project.individualtaskId } });
 
     // Delete the project
     await Project.findByIdAndDelete(projectId);
