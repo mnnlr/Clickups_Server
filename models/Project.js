@@ -1,50 +1,57 @@
 import mongoose from "mongoose";
 
-const ProjectSchema = new mongoose.Schema({
+const ProjectSchema = new mongoose.Schema(
+  {
     projectName: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     description: {
-        type: String
+      type: String,
     },
     teams: {
-        teamIDs: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Team"
-        }],
-        memberIDs: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User"
-        }]
+      teamIDs: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Team",
+        },
+      ],
+      memberIDs: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+      ],
     },
     owner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     sprintId: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Sprint"
-        }
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Sprint",
+      },
     ],
     timestamp: {
-        type: Date,
-        default: Date.now
+      type: Date,
+      default: Date.now,
     },
     individualtaskId: {
-        type: [mongoose.Schema.Types.ObjectId],
-        ref: "Individual Tasks",
-        default: []
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "Individual Tasks",
+      default: [],
     },
     status: {
-        type: String,
-        enum: ["completed", "active", "inactive"],
-        default: "inactive"
+      type: String,
+      enum: ["completed", "active", "inactive"],
+      default: "inactive",
     },
     dueDate: { type: Date },
-});
+  },
+  { timestamps: true },
+);
 
 const Projects = mongoose.model("Project", ProjectSchema);
 
