@@ -29,7 +29,7 @@ dotenv.config({ path: "./config/.env" });
 // -------------------------middlewares-----------------------
 app.use(
   cors({
-    origin: ["http://localhost:5173", process.env.CLIENT_URI],
+    origin: ["http://localhost:5173", 'http://localhost:3000', process.env.CLIENT_URI, process.env.CLIENT_URL2],
     credentials: true,
   }),
 );
