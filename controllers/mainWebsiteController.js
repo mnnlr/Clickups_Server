@@ -9,22 +9,12 @@ export const getWorkspaceData = async (req, res) => {
     const today = new Date(); // Current date (e.g., 21 Feb 2025)
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // 1st Feb 2025
 
-    // Fetch data from all models within the date range
-    const projects = await Projects.find({
-      createdAt: { $gte: startOfMonth, $lte: today },
-    });
-    const tasks = await Task.find({
-      createdAt: { $gte: startOfMonth, $lte: today },
-    });
-    const workspaces = await Workspace.find({
-      createdAt: { $gte: startOfMonth, $lte: today },
-    });
-    const individualTasks = await IndividualTask.find({
-      createdAt: { $gte: startOfMonth, $lte: today },
-    });
-    const documents = await Document.find({
-      createdAt: { $gte: startOfMonth, $lte: today },
-    });
+
+    const projects = await Projects.find({}).populate('teams.teamIDs').populate('teams.memberIDs').populate('owner').populate('sprintId').populate('individualtaskId');
+    const tasks = await Task.find({}).populate('userId').populate('projectId').populate('sprintId').populate('assignees').populate("report");
+    const workspaces = await Workspace.find({}).populate('workspaceDocuments').populate('workspaceMembers').populate('workspaceCreatedBy');
+    const individualTasks = await IndividualTask.find({}).populate('userId').populate('projectId').populate('assignees').populate("report");
+    const documents = await Document.find({}).populate('permissions').populate('workspaceId').populate('contributors').populate('createdBy');
 
     // Structure the data
     const workspaceData = {
