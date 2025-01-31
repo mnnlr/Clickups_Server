@@ -6,9 +6,7 @@ export const VerifyUserId=async(req,res,next)=>{
         if(!email||!MnnlrId){
             return res.status(401).json({success:false ,message:"email Or Emloyee Id is not Provides"}) 
         }
-        const response = await axios.get(
-            "https://mnnlr-backend.onrender.com/api/ms1/verifyEmpForWorkspace",
-            {
+        const response = await axios.get(process.env.VERIFY_USER_URI,{
             params: {
                 mnnlrId: MnnlrId,
                 mnnlrEmail: email
