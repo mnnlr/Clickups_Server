@@ -36,6 +36,10 @@ const documentSchema = new mongoose.Schema({
             default: true,
         },
     }],
+    PermissionForAll:{
+        type:Boolean,
+        default:false
+    },
     workspaceId: {
         type: mongoose.Schema.ObjectId,
         ref: 'Workspace',

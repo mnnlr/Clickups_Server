@@ -4,7 +4,7 @@ import { sendSuccessResponse, sendErrorResponse } from "./responseHelpers.js";
 
 export const createDocument = async (req, res) => {
     try {
-        const { documentTitle, createdBy, workspaceId, permissions } = req.body;
+        const { documentTitle, createdBy, workspaceId, permissions,PermissionForAll } = req.body;
         if (!documentTitle || !createdBy || !workspaceId) {
             return sendErrorResponse(res, 404, "DocumentTitle, CreatedBy and workspaceId is not provided.");
         }
@@ -16,7 +16,7 @@ export const createDocument = async (req, res) => {
             canEdit: permissions.canEdit || false,
             canView: permissions.canView || true,
         }));
-        const newDocument = new Document({ documentTitle, createdBy, permissions:PermissionsFor, workspaceId });
+        const newDocument = new Document({ documentTitle, createdBy, permissions:PermissionsFor, PermissionForAll,workspaceId });
         await newDocument.save();
         const populatedDoc = await Document.findById(newDocument._id).populate("createdBy")
 
@@ -96,7 +96,7 @@ export const deleteDocument = async (req, res) => {
 export const updateDocumentPermissions = async (req, res) => {
     try {
         const { id } = req.params;
-        const { Members } = req.body;
+        const { Members,PermissionForAll } = req.body;
         // Validate request input
         if (!id || !Members) {
             return sendErrorResponse(res, 400, 'Document ID or Members data not provided');
@@ -107,12 +107,11 @@ export const updateDocumentPermissions = async (req, res) => {
             canEdit: permissions.canEdit,
             canView: permissions.canView
         }));
-        console.log('PermissionsFor',PermissionsFor)
-
+        console.log('PermissionsFor',PermissionForAll)
         // Update document permissions
         const updatedDocument = await Document.findByIdAndUpdate(
             id,
-            { $set: { permissions: PermissionsFor } }, // Replace the permissions array
+            { $set: { permissions: PermissionsFor ,PermissionForAll:PermissionForAll} }, // Replace the permissions array
             { new: true, runValidators: true } // Return updated document and validate schema
         ).populate('createdBy'); // Populate referenced fields
 
