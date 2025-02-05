@@ -29,13 +29,18 @@ dotenv.config({ path: "./config/.env" });
 // -------------------------middlewares-----------------------
 app.use(
   cors({
-    origin: ["http://localhost:5173", 'http://localhost:3000', process.env.CLIENT_URI, process.env.CLIENT_URL2],
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:3000",
+      process.env.CLIENT_URI,
+      process.env.CLIENT_URL2,
+    ],
     credentials: true,
   }),
 );
 app.use(cookieParser());
-app.use(express.json({ limit: "500kb" })); // Increase payload limit
-app.use(express.urlencoded({ extended: true, limit: "500kb" })); // For URL-encoded data
+app.use(express.json({ limit: "50mb" })); // Increase payload limit
+app.use(express.urlencoded({ extended: true, limit: "50mb" })); // For URL-encoded data
 app.use(express.json());
 app.use(refreshTokenRoute);
 
